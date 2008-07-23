@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set PATH=/opt/csw/bin:/opt/csw/sbin:$PATH
+
+function check_zone {
+  zone_path=$1
+  # echo zone path: $zone_path
+  zone_name=`basename $zone_path | cut -d- -f2,3`
+  # echo zone name: $zone_name
+  named-checkzone $zone_name $zone_path > /dev/null
+  if [ $? != 0 ]; then
+    echo Problem with $zone_path
+  fi
+}
+
+## Find all headers and check them
+for zone_path in `find /etc/bind/views/ | grep -v svn | grep db | grep headers`; do
+  check_zone "$zone_path"
+done
+

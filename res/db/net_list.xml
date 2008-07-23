@@ -1,0 +1,74 @@
+<?xml version="1.0" standalone="yes"?>
+<!DOCTYPE net_list SYSTEM "net_list.dtd">
+<net_list>
+  <network recursion="yes" type="virtual">
+    <name>admin-hosts</name>
+    <description>Administrative hosts that can resolve everything</description>
+    <!-- Administrative Clients -->
+    <match-clients>192.0.2.10</match-clients>
+    <match-clients>192.0.2.11</match-clients>
+    <resolve>admin-hosts</resolve>
+    <resolve>example-dual-stack</resolve>
+    <resolve>example-private</resolve>
+    <resolve>example-internal</resolve>
+    <resolve>example-external</resolve>
+    <resolve>globalnet</resolve>
+  </network>
+  <network recursion="yes" type="physical">
+    <name>example-dual-stack</name>
+    <prefix proto="ipv4">192.0.2.0/24</prefix>
+    <prefix proto="ipv6">2001:db8::/64</prefix>
+    <ns>ns1.example.com</ns>
+    <ns>ns1.example.com</ns>
+    <resolve>example-dual-stack</resolve>
+    <resolve>example-external</resolve>
+    <resolve>globalnet</resolve>
+  </network>
+  <network recursion="yes" type="physical">
+    <name>example-private</name>
+    <prefix proto="ipv4">192.168.0.1/24</prefix>
+    <ns>ns1.example.com</ns>
+    <ns>ns1.example.com</ns>
+    <resolve>example-private</resolve>
+    <resolve>example-dual-stack</resolve>
+    <resolve>example-external</resolve>
+    <resolve>globalnet</resolve>
+  </network>
+  <network recursion="yes" type="physical">
+    <name>example-internal</name>
+    <description>An internal network, possibly firewalled off</description>
+    <prefix proto="ipv4">192.0.3.0/24</prefix>
+    <ns>ns1.example.com</ns>
+    <ns>ns2.example.com</ns>
+    <resolve>example-internal</resolve>
+    <resolve>example-dual-stack</resolve>
+    <resolve>example-external</resolve>
+    <resolve>globalnet</resolve>
+  </network>
+  <network recursion="yes" type="physical">
+    <name>example-external</name>
+    <description>An external network, possibly firewalled off</description>
+    <prefix proto="ipv4">192.0.4.0/24</prefix>
+    <ns>ns1.example.com</ns>
+    <ns>ns2.example.com</ns>
+    <resolve>example-external</resolve>
+    <resolve>example-dual-stack</resolve>
+    <resolve>globalnet</resolve>
+  </network>
+  <network recursion="no" type="physical">
+    <name>example-stub</name>
+    <description>A non-resolving network</description>
+    <prefix proto="ipv4">192.168.1.0/24</prefix>
+    <ns>ns1.tajinc.org</ns>
+    <ns>ns2.tajinc.org</ns>
+    <no-resolve/>
+  </network>
+  <network recursion="no" type="virtual">
+    <name>globalnet</name>
+    <description>Define Global (catchall) Resolve Priority</description>
+    <match-clients special="any" />
+    <resolve>globalnet</resolve>
+    <resolve>example-dual-stack</resolve>
+    <resolve>example-external</resolve>
+  </network>
+</net_list>

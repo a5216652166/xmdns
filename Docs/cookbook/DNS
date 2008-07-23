@@ -1,0 +1,140 @@
+===================================
+How to install an ISC BIND 9 server
+===================================
+
+Prerequisites:
+==============
+
+  You must have the following software packages available:
+
+  * Bind version 9
+  * Subversion client (server functionality not needed)
+  * CRON - to periodically update the tables
+    (While you can use other methods to run the update process,
+     this recipe will only cover cron)
+
+Prerequisite Notes:
+===================
+
+  Bind 9 is easily built from source but many distributions contain a
+  prepackaged install. Many times this is preferable since security updates
+  to bind will naturally come with the distribution.
+
+  The SVN client is not nearly as critical to patch as BIND and is also easy
+  to build. Since the server functionality is not needed you can build svn
+  without building against BerkelyDB. For some space critical applications this
+  is handy.
+
+  CRON is a well used system that has many alternatives. On platforms such as
+  OSX (Leopard and higher) cron is completely replaced with launchd. Solaris
+  uses services which may provide a more robust way of managing updates, but
+  cron still works well.
+
+Application Notes:
+==================
+
+  BIND 9 has an administrative client functionality called "rndc". One
+  subcommand of rndc is "reload" which tells a running BIND 9 server to attempt
+  to refresh its configuration. A special property of this is that if the
+  refresh fails, BIND will keep the old configuration. This is arguably much
+  safer than restarting bind as many default distributions scripts will do
+  (including the Solaris 10 SMF description.) For this reason it is recommended
+  that you configure rndc for your DNS server.
+
+Overview:
+=========
+
+  This setup works by periodically polling a svn server and then running
+  "rndc reload". Due to hard coded paths in the dns configuration the subversion
+  repository must be checked out at /etc/bind as the examples dictate.
+
+Installation:
+=============
+
+  To modify an existing configuration:
+
+    1) Find the path to your named.conf configuration file for your installation
+       of bind9. If you compiled bind9 yourself then the default should be
+       {prefix}/etc/named.conf, otherwise refer to your systems documentation on
+       the topic.
+
+    2) Clean out any references to zone configurations, acl entries, and views.
+       You may keep your rndc configuration as well as global configuration
+       options.
+
+    3) Checkout the subversion repository at the location "/etc/bind". If your
+       repository exists at "http://example.com/svn/bind" then you would run:
+
+       # svn co http://examples.com/svn/bind /etc/bind
+
+       (Sanity check that /etc/bind/named.conf exists/is from the repository)
+
+    4) Edit your distribution's named.conf and add an include to the svn
+       repository checkout by adding the line:
+
+       include "/etc/bind/named.conf";
+
+  To start from a fresh configuration replace step 2 from above with:
+
+    2) Start with an empty named.conf and configure your rndc settings.
+       # cd /bind/configuration/path
+       # rndc-confgen > rndc.conf)
+       # cat rndc.conf > named.conf
+       # vi named.conf
+         ( follow directions in the named.conf )
+
+    Once done with step 4 from above you will likely have a named.conf that
+    looks similar to:
+
+    ----------------------------------------------------------------------------
+    ----  sample named.conf ----------------------------------------------------
+    key "rndc-key" {
+          algorithm hmac-md5;
+          secret "eo+Al6pfUX3ByNqLoKGQ7Q==";
+    };
+    
+    controls {
+          inet 127.0.0.1 port 953
+                  allow { 127.0.0.1; } keys { "rndc-key"; };
+    };
+    
+    include "/etc/bind/named.conf";
+    ----------------------------------------------------------------------------
+
+  You can now start bind as prescribed by your installation. This may vary between
+  operating systems, some examples are given below:
+
+    Vanilla Unix:
+      # /etc/init.d/bind9 start
+
+    Solaris 10+:
+      # svcadm enable svc:/network/dns/server:default
+
+Configure CRON:
+===============
+
+  Create an entry to run
+    "svn update /etc/bind;rndc reload"
+  at an interval that suits your needs. It is recommended to put full paths for
+  the svn and rndc commands to ensure that the correct binary is run in any
+  case. Example cron entries may look like:
+
+  ------------------------------------------------------------------------------
+  ---- example root crontab ----------------------------------------------------
+  10,40 * * * * /opt/csw/bin/svn update /etc/bind > /dev/null
+  15,45 * * * * /opt/csw/sbin/rndc reload > /dev/null
+  ## Check the status of DNS before everyone goes home (m-f)
+  46 16 * * 1-5 /opt/csw/sbin/rndc status
+  ------------------------------------------------------------------------------
+
+  Run these commands in a minimal shell to ensure that they work properly.
+
+Testing the Installation:
+=========================
+
+  Since your new DNS scheme supports views, you may not get the results you
+  expect if you query against "127.0.0.1". It is recommended that you run your
+  query from another host or minimally from the same host using the published
+  address.
+
+  # dig hostname.example.com @192.0.2.2 ANY

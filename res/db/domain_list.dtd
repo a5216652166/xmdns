@@ -1,0 +1,17 @@
+<!--
+  A domain minimally needs an SOA definition and a default TTL
+-->
+<!ELEMENT domain_list (domain*)>
+<!ELEMENT domain (name,description?,notes?,PrimaryNS,AdminMail,DTTL,Serial,Refresh,Retry,Expire,NCTTL,manualRecords*)>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT description (#PCDATA)>
+<!ELEMENT notes (#PCDATA)>
+<!ELEMENT PrimaryNS (#PCDATA)>
+<!ELEMENT AdminMail (#PCDATA)>
+<!ELEMENT DTTL (#PCDATA)>
+<!ELEMENT Serial (#PCDATA)>
+<!ELEMENT Retry (#PCDATA)>
+<!ELEMENT Refresh (#PCDATA)>
+<!ELEMENT Expire (#PCDATA)>
+<!ELEMENT NCTTL (#PCDATA)>
+<!ELEMENT manualRecords (#PCDATA)>

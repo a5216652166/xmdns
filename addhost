@@ -1,0 +1,136 @@
+#!/usr/bin/bash
+# 
+# name:    addhost
+# purpose: add a hostname to LDAP from the command line
+# usage:   addhost -i ipaddress -h hostname -d "description"
+#                  [-m macaddress] [-c cname1,cname2,...cnamen] [-fMnux]
+#           description must be surrounded by quotes
+#           macaddress is six :-delimited pairs of hex digits
+#           cnames must be a ,-delimited list with no whitespace
+#           -f = before adding entry, force delete of ldap hosts entry/entries 
+#                that match given ip or hostname
+#           -n = suppress execution (perform dry run)
+#           -u = display usage
+#           -x = trace execution
+#
+# - Modified to wrap the actual addhost as well as xml addhost
+
+######################################################################################
+# start of functions.
+######################################################################################
+
+add_hosts_entry ()
+{
+
+  [ -n "${DO_NOT_ADD}" ] && return
+
+  unset SVNMAC2ADD
+  if [ -n "${MAC2ADD}" ]
+  then
+    SVNMAC2ADD="--macAddress ${MAC2ADD}"
+  fi
+
+  # modify xml scheme in subversion.
+  cd `dirname $0`
+  ./05-update-source
+  ./10-add-host --hostname ${HOST2ADD} --a ${IP2ADD} --description "${DESC2ADD}" ${SVNMAC2ADD}
+  ./30-update-zones
+  ./60-commit-changes
+
+}  # end of add_hosts_entry().
+
+check_args ()
+{
+
+  unset USAGE_PROBLEM
+  if [ -z "${HOST2ADD}" ]
+  then
+    echo "hostname not given. please rerun with -h option."
+    USAGE_PROBLEM=yes
+  fi
+  if [ -z "${IP2ADD}" ]
+  then
+    echo "ip address not given. please rerun with -i option."
+    USAGE_PROBLEM=yes
+  fi
+  if [ -z "${DESC2ADD}" ]
+  then
+    echo "description not given. please rerun with -d option."
+    USAGE_PROBLEM=yes
+  fi
+
+  # display usage and exit if usage problem.
+  [ -n "${USAGE_PROBLEM}" ] && usage
+
+  echo ""
+  [ -n "${FORCE_IT}" ] && \
+    echo "will force overwrite of entries that match given ip address or hostname."
+  [ -n "${EXEC}" ] && echo "will suppress execution (perform dry run)."
+  echo "will add a hosts entry using these inputs:"
+  echo "hostname:    ${HOST2ADD}"
+  echo "ip address:  ${IP2ADD}"
+  echo "description: ${DESC2ADD}"
+  echo ""
+
+}  # end of check_args().
+
+usage ()
+{
+  echo ""
+  echo "usage: $0 -i ipaddress -h hostname -d \"description\" "
+  echo "          [-m macaddress] [-c cname1,cname2,...,cnamen] [-fMnux]"
+  echo "  description must be surrounded by quotes"
+  echo "  macaddress is six :-delimited hex pairs"
+  echo "  cnames must be a ,-delimited list with no whitespace"
+  echo "  -f = before adding entry, force delete of ldap hosts entry"
+  echo "       matching given ip or hostname"
+  echo "  -n = suppress execution (perform dry run)"
+  echo "  -u = display usage"
+  echo "  -x = trace execution"
+  echo ""
+  exit 1
+}  # end of usage().
+
+######################################################################################
+# end of functions.
+######################################################################################
+# start of main.
+######################################################################################
+
+TMPFILE=/tmp/hosttemp.$$
+SECRETFILE=/etc/r/pursch/ldap/.secret
+LDAPSEARCH=/usr/bin/ldapsearch
+LDAPADD=/usr/bin/ldapadd
+LDAPDELETE=/usr/bin/ldapdelete
+LDAPHOST=lpl-lm.lpl.arizona.edu
+ADD_ENTRY=yes
+NUM_ADDED=0
+NUM_DELETED=0
+unset CNAMES DESC2ADD EDN EXEC FORCE_IT HOST2ADD IP2ADD
+
+# If we are not on the ldap host, get there.
+REAL_ADD_HOST=/etc/r/addhost
+THIS_HOST=`uname -p`.`domainname`
+if [ "$THIS_HOST" != "$LDAP_HOST" ]; then
+  READ_ADD_HOST="ssh root@$LDAP_HOST $REAL_ADD_HOST"
+fi
+
+echo ""
+echo "$0 started at `/bin/date`"
+while getopts c:d:fh:i:m:nux ARG
+do
+  case ${ARG} in
+    c ) CNAMES=`echo ${OPTARG} | sed 's/,/ /'g` ;;
+    d ) DESC2ADD=${OPTARG} ;;
+    f ) FORCE_IT=yes ;;
+    h ) HOST2ADD=${OPTARG} ;;
+    i ) IP2ADD=${OPTARG} ;;
+    m ) MAC2ADD=${OPTARG} ;;
+    n ) EXEC=echo ;;
+    u ) usage ;;
+    x ) set -x ;;
+  esac  # on ARG.
+done
+
+check_args
+add_hosts_entry

@@ -1,0 +1,37 @@
+<!ELEMENT host_list (host*)>
+<!ELEMENT host (hostname,shortname,domainname,action*,createdBy?,dateCreated?,description*,known-duplicate?,macAddress*,manager?,modifiedBy?,modifiedDate?,notes*,(a|aaaa|cname|loc|mx|ns|ptr|rp|srv|txt)+)>
+<!ELEMENT hostname (#PCDATA)>
+<!ELEMENT shortname (#PCDATA)>
+<!ELEMENT domainname (#PCDATA)>
+<!ELEMENT action (#PCDATA)>
+<!ELEMENT createdBy (#PCDATA)>
+<!ELEMENT createdDate (#PCDATA)>
+<!ELEMENT description (#PCDATA)>
+<!ELEMENT known-duplicate (#PCDATA)>
+<!ELEMENT macAddress (#PCDATA)>
+<!ELEMENT manager (#PCDATA)>
+<!ELEMENT modifiedBy (#PCDATA)>
+<!ELEMENT modifiedDate (#PCDATA)>
+<!ELEMENT notes (#PCDATA)>
+<!-- records -->
+<!ELEMENT a (#PCDATA)>
+<!ELEMENT aaaa (#PCDATA)>
+<!ELEMENT cname (#PCDATA)>
+<!ELEMENT loc (#PCDATA)>
+<!ELEMENT mx (#PCDATA)>
+<!ELEMENT ns (#PCDATA)>
+<!ELEMENT ptr (#PCDATA)>
+<!ELEMENT rp (#PCDATA)>
+<!ELEMENT srv (#PCDATA)>
+<!ELEMENT txt (#PCDATA)>
+<!-- record attributes -->
+<!ATTLIST a	net	(admin-hosts|example-dual-stack|example-private|example-internal|example-external|example-stub|globalnet) #REQUIRED>
+<!ATTLIST aaaa	net	(admin-hosts|example-dual-stack|example-private|example-internal|example-external|example-stub|globalnet) #REQUIRED>
+<!ATTLIST cname	net	(admin-hosts|example-dual-stack|example-private|example-internal|example-external|example-stub|globalnet) #REQUIRED>
+<!ATTLIST loc	net	(admin-hosts|example-dual-stack|example-private|example-internal|example-external|example-stub|globalnet) #REQUIRED>
+<!ATTLIST mx	net	(admin-hosts|example-dual-stack|example-private|example-internal|example-external|example-stub|globalnet) #REQUIRED>
+<!ATTLIST ns	net	(admin-hosts|example-dual-stack|example-private|example-internal|example-external|example-stub|globalnet) #REQUIRED>
+<!ATTLIST ptr	net	(admin-hosts|example-dual-stack|example-private|example-internal|example-external|example-stub|globalnet) #REQUIRED>
+<!ATTLIST rp	net	(admin-hosts|example-dual-stack|example-private|example-internal|example-external|example-stub|globalnet) #REQUIRED>
+<!ATTLIST srv	net	(admin-hosts|example-dual-stack|example-private|example-internal|example-external|example-stub|globalnet) #REQUIRED>
+<!ATTLIST txt	net	(admin-hosts|example-dual-stack|example-private|example-internal|example-external|example-stub|globalnet) #REQUIRED>

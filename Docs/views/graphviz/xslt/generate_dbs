@@ -1,0 +1,28 @@
+xsltproc -o ../connections.dot connections.xsl ../../../../res/db/host_list.xml
+xsltproc -o ../connections-tasks.dot connections-tasks.xsl ../../../../res/db/host_list.xml
+xsltproc -o ../connections-hinet.dot connections-hinet.xsl ../../../../res/db/host_list.xml
+xsltproc -o ../connections-pirlnet.dot connections-pirlnet.xsl ../../../../res/db/host_list.xml
+xsltproc -o ../connections-othernet.dot connections-othernet.xsl ../../../../res/db/host_list.xml
+xsltproc -o ../connections-sonettnet.dot connections-sonettnet.xsl ../../../../res/db/host_list.xml
+
+cd ../
+
+## 
+## In general, the FDP view is the best and most readable, but two pi looks cool :)
+##
+
+fdp   connections.dot -Tpng -o connections_fdp.png
+twopi connections.dot -Tpng -o connections_twopi.png
+
+fdp   connections-othernet.dot -Tpng -o connections-othernet_fdp.png
+
+fdp   connections-sonettnet.dot -Tpng -o connections-sonettnet_fdp.png
+
+fdp   connections-pirlnet.dot -Tpng -o connections-pirlnet_fdp.png
+
+fdp   connections-hinet.dot -Tpng -o connections-hinet_fdp.png
+
+fdp   connections-tasks.dot -Tpng -o connections-tasks_fdp.png
+
+## Neato is compact but unreadable
+# neato connections.dot -Tsvg -o connections_neato.svg

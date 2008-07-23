@@ -1,0 +1,4 @@
+xsltproc -o \
+	../tables/example-internal \
+	example-internal.xsl \
+	../../res/db/host_list.xml

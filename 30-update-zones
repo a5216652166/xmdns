@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Run this script to update all DNS views.
+
+cd `dirname $0`
+./res/db/update_zones
+
+echo if no errors were reported please run ./35-check-changes
+echo or you can simply run ./60-commit-changes
+

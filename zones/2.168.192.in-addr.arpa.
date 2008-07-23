@@ -1,0 +1,36 @@
+$TTL    604800
+@ IN SOA hidyns01.hinet.lpl.arizona.edu. root.hidyns01.hinet.lpl.arizona.edu. (
+        1         ; Serial
+        604800    ; Refresh
+        86400     ; Retry
+        2419200   ; Expire
+        604800 )  ; Negative Cache TTL
+@	IN	NS	hidyns01.hinet.lpl.arizona.edu.
+@	IN	NS	hidyns02.hinet.lpl.arizona.edu.
+1.2.168.192.in-addr.arpa. IN PTR hinet.lpl.arizona.edu.
+10.2.168.192.in-addr.arpa. IN PTR hiroc01.lpl.arizona.edu.
+11.2.168.192.in-addr.arpa. IN PTR olympus.lpl.arizona.edu.
+12.2.168.192.in-addr.arpa. IN PTR config01.hinet.lpl.arizona.edu.
+15.2.168.192.in-addr.arpa. IN PTR lroc.lpl.arizona.edu.
+16.2.168.192.in-addr.arpa. IN PTR config02.hinet.lpl.arizona.edu.
+17.2.168.192.in-addr.arpa. IN PTR config03.hinet.lpl.arizona.edu.
+18.2.168.192.in-addr.arpa. IN PTR config04.hinet.lpl.arizona.edu.
+19.2.168.192.in-addr.arpa. IN PTR config05.hinet.lpl.arizona.edu.
+20.2.168.192.in-addr.arpa. IN PTR config06.hinet.lpl.arizona.edu.
+21.2.168.192.in-addr.arpa. IN PTR pillar.lpl.arizona.edu.
+22.2.168.192.in-addr.arpa. IN PTR pillaradm.hinet.lpl.arizona.edu.
+23.2.168.192.in-addr.arpa. IN PTR pillarcu0.hinet.lpl.arizona.edu.
+24.2.168.192.in-addr.arpa. IN PTR pillarcu1.hinet.lpl.arizona.edu.
+25.2.168.192.in-addr.arpa. IN PTR config07.hinet.lpl.arizona.edu.
+26.2.168.192.in-addr.arpa. IN PTR v100-1.hinet.lpl.arizona.edu.
+27.2.168.192.in-addr.arpa. IN PTR v100-2.hinet.lpl.arizona.edu.
+28.2.168.192.in-addr.arpa. IN PTR netapp.lpl.arizona.edu.
+29.2.168.192.in-addr.arpa. IN PTR netapp2.lpl.arizona.edu.
+30.2.168.192.in-addr.arpa. IN PTR hidyns01.hinet.lpl.arizona.edu.
+31.2.168.192.in-addr.arpa. IN PTR hidyns02.hinet.lpl.arizona.edu.
+32.2.168.192.in-addr.arpa. IN PTR hisyres.hinet.lpl.arizona.edu.
+33.2.168.192.in-addr.arpa. IN PTR hidap02.hinet.lpl.arizona.edu.
+34.2.168.192.in-addr.arpa. IN PTR hidap01.hinet.lpl.arizona.edu.
+36.2.168.192.in-addr.arpa. IN PTR T2000-1.hinet.lpl.arizona.edu.
+37.2.168.192.in-addr.arpa. IN PTR pillarfs.hinet.lpl.arizona.edu.
+38.2.168.192.in-addr.arpa. IN PTR hiwiki.lpl.arizona.edu.

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+svn=`which svn`
+
+if [ "x$svn" == "x" ]; then
+  echo Error: you need svn to be available in your path.
+  exit -1
+fi
+
+if [ ! -x "$svn" ]; then
+  echo Error: you need a working svn command available in your path.
+  exit -1
+fi
+
+svn update
+
+source .post-update
+
+echo
+echo ________________________________________________________________________________
+echo if any lines begin with "C", then please resolve the conflict.
+echo otherwise you can run ./10-edit-hosts

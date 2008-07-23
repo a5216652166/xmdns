@@ -1,0 +1,37 @@
+<!ELEMENT host_list (host*)>
+<!ELEMENT host (hostname,shortname,domainname,action*,createdBy?,dateCreated?,description*,known-duplicate?,macAddress*,manager?,modifiedBy?,modifiedDate?,notes*,(a|aaaa|cname|loc|mx|ns|ptr|rp|srv|txt)+)>
+<!ELEMENT hostname (#PCDATA)>
+<!ELEMENT shortname (#PCDATA)>
+<!ELEMENT domainname (#PCDATA)>
+<!ELEMENT action (#PCDATA)>
+<!ELEMENT createdBy (#PCDATA)>
+<!ELEMENT createdDate (#PCDATA)>
+<!ELEMENT description (#PCDATA)>
+<!ELEMENT known-duplicate (#PCDATA)>
+<!ELEMENT macAddress (#PCDATA)>
+<!ELEMENT manager (#PCDATA)>
+<!ELEMENT modifiedBy (#PCDATA)>
+<!ELEMENT modifiedDate (#PCDATA)>
+<!ELEMENT notes (#PCDATA)>
+<!-- records -->
+<!ELEMENT a (#PCDATA)>
+<!ELEMENT aaaa (#PCDATA)>
+<!ELEMENT cname (#PCDATA)>
+<!ELEMENT loc (#PCDATA)>
+<!ELEMENT mx (#PCDATA)>
+<!ELEMENT ns (#PCDATA)>
+<!ELEMENT ptr (#PCDATA)>
+<!ELEMENT rp (#PCDATA)>
+<!ELEMENT srv (#PCDATA)>
+<!ELEMENT txt (#PCDATA)>
+<!-- record attributes -->
+<!ATTLIST a	net	(PIPE_SEPARATED_NET_LIST) #REQUIRED>
+<!ATTLIST aaaa	net	(PIPE_SEPARATED_NET_LIST) #REQUIRED>
+<!ATTLIST cname	net	(PIPE_SEPARATED_NET_LIST) #REQUIRED>
+<!ATTLIST loc	net	(PIPE_SEPARATED_NET_LIST) #REQUIRED>
+<!ATTLIST mx	net	(PIPE_SEPARATED_NET_LIST) #REQUIRED>
+<!ATTLIST ns	net	(PIPE_SEPARATED_NET_LIST) #REQUIRED>
+<!ATTLIST ptr	net	(PIPE_SEPARATED_NET_LIST) #REQUIRED>
+<!ATTLIST rp	net	(PIPE_SEPARATED_NET_LIST) #REQUIRED>
+<!ATTLIST srv	net	(PIPE_SEPARATED_NET_LIST) #REQUIRED>
+<!ATTLIST txt	net	(PIPE_SEPARATED_NET_LIST) #REQUIRED>

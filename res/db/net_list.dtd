@@ -1,0 +1,37 @@
+<!ELEMENT net_list (network*)>
+<!ELEMENT network (name,description?,prefix*,notes*,default-mx?,match-clients*,ignore-ipv4-reverse-resolve?,no-global-reverse-resolve?,ns*,extra-reverse*,(resolve+|no-resolve))>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT description (#PCDATA)>
+<!ELEMENT default-mx (#PCDATA)>
+<!-- Extra networks to reverse resolve within this view -->
+<!ELEMENT extra-reverse (#PCDATA)> 
+<!ELEMENT notes (#PCDATA)>
+<!-- entries to put in the named.acls file that gets fed to match-clients in named.views
+     Each entry should be a ip or ip range:
+     192.168.0.1
+     192.168.0.0/24
+     2607:f088:0:1::1
+     2607:f088:0:1::/64 -->
+<!ELEMENT match-clients (#PCDATA)>
+<!-- Do not reverse-resolve this network globally, add extra-reverse to resolve for specific views -->
+<!ELEMENT no-global-reverse-resolve EMPTY>
+<!ELEMENT ignore-ipv4-reverse-resolve EMPTY>
+<!-- Authoritative Name Server for network -->
+<!ELEMENT ns (#PCDATA)>
+<!-- For networks that are covered by another view (virtual/aggregate network) -->
+<!ELEMENT no-resolve EMPTY>
+<!-- an ordered list of these specifies the preferential network in a view
+     Each entry should be a physical network name -->
+<!ELEMENT resolve (#PCDATA)>
+<!--
+  records
+-->
+<!ELEMENT prefix (#PCDATA)>
+<!--
+  element attributes
+-->
+<!ATTLIST extra-reverse	proto	(ipv4|ipv6) #REQUIRED>
+<!ATTLIST prefix	proto	(ipv4|ipv6) #REQUIRED>
+<!ATTLIST network	type	(virtual|aggregate|physical) #REQUIRED>
+<!ATTLIST network	recursion	(yes|no) #REQUIRED>
+<!ATTLIST match-clients	special	(none|any|localhost|localnets|ip) 'ip'>

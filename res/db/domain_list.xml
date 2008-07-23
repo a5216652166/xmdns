@@ -1,0 +1,28 @@
+<?xml version="1.0" standalone="yes"?>
+<!DOCTYPE domain_list SYSTEM "domain_list.dtd">
+<domain_list>
+  <domain>
+    <name>example.com</name>
+    <description>The de-facto example domain</description>
+    <PrimaryNS>ns1.example.com</PrimaryNS>
+    <AdminMail>dns_admin.example.com</AdminMail>
+    <DTTL>604800</DTTL>
+    <Serial>20050523</Serial>
+    <Refresh>360</Refresh>
+    <Retry>1800</Retry>
+    <Expire>604800</Expire>
+    <NCTTL>86400</NCTTL>
+  </domain>
+  <domain>
+    <name>sd.example.com</name>
+    <description>example sub-domain</description>
+    <PrimaryNS>ns1.sd.example.com</PrimaryNS>
+    <AdminMail>dns_admin.sd.example.com</AdminMail>
+    <DTTL>604800</DTTL>
+    <Serial>20080304</Serial>
+    <Refresh>360</Refresh>
+    <Retry>1800</Retry>
+    <Expire>604800</Expire>
+    <NCTTL>86400</NCTTL>
+  </domain>
+</domain_list>

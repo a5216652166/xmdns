@@ -1,0 +1,24 @@
+#!/bin/bash
+
+cd `dirname $0`
+
+if [ "x$DNSEDITOR" != "x" ]; then
+  echo DNSEDITOR defined, bypassing internal editor and using: $DNSEDITOR
+  echo Warning: this is not a stable interface
+  sleep 1
+  $DNSEDITOR res/db/host_list.xml
+else
+  python=`which python`
+  if [ "x$python" == "x" ]; then
+    echo Error: python not in path
+  elif [ "$python" == "/opt/pub/bin/python" ]; then
+    echo Warning: setting path in hopes of circumventing PIRL python build
+    export PATH=/usr/sfw/bin:/usr/bin:$PATH
+  fi
+  which python
+  ./editor/bin/edit.py
+fi
+
+(cd res/db;xsltproc tests/syntax.xsl host_list.xml)
+
+echo If no errors were reported, please run ./30-update-zones

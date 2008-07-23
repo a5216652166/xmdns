@@ -1,0 +1,27 @@
+acl "admin-hosts" {
+  // match-clients clause specified
+  192.0.2.10;
+  192.0.2.11;
+};
+
+acl "example-dual-stack" {
+  192.0.2.0/24;
+  2001:db8::/64;
+};
+
+acl "example-private" {
+  192.168.0.1/24;
+};
+
+acl "example-internal" {
+  192.0.3.0/24;
+};
+
+acl "example-external" {
+  192.0.4.0/24;
+};
+
+acl "globalnet" {
+  // Special match-clients clause specified
+};
+

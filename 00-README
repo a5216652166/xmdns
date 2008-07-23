@@ -1,0 +1,79 @@
+#!/usr/bin/less
+
+Common Tasks:
+=============
+
+To add/remove/modify host entries you can follow the recipe:
+
+  ./05-update-source
+  ./10-edit-hosts
+  ./30-update-zones
+  ./35-check-changes (this is optional)
+  ./60-commit-changes
+
+  Each stage should guide you to the next.
+
+To just add a new host (IPv4 only):
+
+  ./05-update-source
+  ./09-find-open-ip 192.0.2.0
+  ./10-add-host \
+    --hostname ws1 \
+    --domain example.com \
+    --a 192.0.2.15 \
+    --description "Hi, my name is Joe, and I work in a button factory."
+  ./30-update-zones
+  ./35-check-changes (this is optional)
+  ./60-commit-changes
+
+Uncommon Tasks:
+===============
+
+To add hand crafted entries that do not fit in the normal scheme:
+
+  edit views/{network}/headers/db-{zone name}
+  svn commit
+  update ns servers (automatically done via cron)
+
+To add a new domain:
+
+  edit res/db/domain_list.xml
+    (pattern match to add new entry from existing domain)
+  run res/db/update_other
+
+To add a new network:
+
+  edit res/db/network_list.xml
+    (pattern match to add new entry from existing network)
+  run res/db/update_other
+
+Important Files:
+================
+
+This tree shows how files are included from /etc/bind/named.conf
+most files are automatically generated, exceptions are noted below.
+
+ | /etc/bind/named.conf    -- hand generated general/global parameters to bind
+ |                            are placed here
+ \-| /etc/bind/named.acls  -- groups of hosts/networks are defined here for
+   |    		      later use
+   | /etc/bind/named.views -- each view of the DNS tree is defined here with
+   |    		      options
+   \-| /etc/bind/views/{network}/named.conf
+     |  		   -- Simplified named.conf file for each network view
+     \-| /etc/bind/reverse/global-named.conf
+     | |		   -- config for reverse resolution of
+     | |		      all networks in all contexts
+     | \-| /etc/bind/reverse/headers/ipv[4|6]-{network}
+     |   |                 -- config for reverse resolution of a
+     |   |                    single network
+     |   \-| /etc/bind/reverse/zones/ipv[4|6]-{network}
+     |                     -- config for reverse resolution of a
+     |                        single network
+     \-| /etc/bind/view/{network}/extra-reverse.conf
+     |                     -- config for special zones
+     \-| /etc/bind/view/{network}/headers/db-{zone name}
+       |                   -- header for zone
+       \-| /etc/bind/views/{network}/zones/db-{zone name}
+                           -- zone definition file
+

@@ -1,0 +1,115 @@
+#!/bin/bash
+
+# Run in the directory we are contained in
+cd `dirname $0`
+
+# Forward resolution
+export DOMAINS=`xsltproc --novalid tools/domainnames_from_domain_list.xsl domain_list.xml`
+
+################################################################################
+# Perform some basic tests before we proceed to build the content
+################################################################################
+
+## XML Syntax Check
+echo Checking domain_list.xml syntax...
+xmllint --noblanks --valid domain_list.xml --noout || exit -1
+echo Checking host_list.xml syntax...
+xmllint --noblanks --valid host_list.xml --noout || exit -1
+echo Checking net_list.xml syntax...
+xmllint --noblanks --valid net_list.xml --noout || exit -1
+
+## Duplicate entry check
+echo Checking for duplicate hostnames/entries...
+xsltproc --novalid tools/hostnames.xsl	host_list.xml | sort | uniq -c | grep -v -w 1 | grep . && exit -1
+
+## Registered domain check
+echo Checking for unregistered domains...
+export DOMAIN_REGEX=`echo $DOMAINS | sed 's/ /|/g'`
+xsltproc --novalid tools/domainnames_from_host_list.xsl	host_list.xml | sort | uniq -c | egrep -v -w $DOMAIN_REGEX | grep . && exit -1
+
+## Basic hostname entry check
+echo Checking hostname=shortname.domainname...
+xsltproc --novalid tests/short_domain_hostname.xsl host_list.xml | grep . && exit -1
+
+################################################################################
+# Done with basic tests, time to output some content.
+################################################################################
+
+## Process each view of the DNS scheme
+echo Processing forward zones...
+for VIEW in `ls forward-zones | sed 's/.xsl//'` 
+do
+  echo -n '     ' $VIEW - '(conf)	'
+  xsltproc --novalid \
+	--stringparam target_view $VIEW \
+	tools/views_named_conf.xsl domain_list.xml \
+	> ../../views/$VIEW/named.conf || exit -1
+  ## TODO: Automatically generate this file from net_list.xml
+  touch ../../views/$VIEW/extra-reverse.conf
+
+  ## define headers and db for each domain
+  for DOMAIN in $DOMAINS
+  do
+    SHORT_NAME=`echo $DOMAIN | cut -d. -f1`
+
+    echo -n $SHORT_NAME' '
+    ## Header generation
+    xsltproc --novalid \
+	--stringparam target_domain $DOMAIN \
+	--stringparam target_view $VIEW \
+	xsl-res/soa.xsl domain_list.xml \
+	> ../../views/$VIEW/headers/db-$DOMAIN || exit -1
+    ## Meat of zone definition (done in background/in parallel)
+    xsltproc --novalid \
+	--stringparam target_domain $DOMAIN \
+	forward-zones/$VIEW.xsl host_list.xml \
+	> ../../views/$VIEW/zones/db-$DOMAIN || exit -1 &
+
+    # VIEW=`echo $nets | cut -d_ -f1 | sed 's/-/_/'`
+    # DOMAIN=`echo $nets | cut -d_ -f2`
+    # xsltproc forward-zones/$nets.xsl host_list.xml > ../../views/$VIEW/zones/db-$DOMAIN || exit -1
+  done
+  wait
+  echo
+done
+echo Done
+echo
+
+## Reverse Resolution
+
+echo Processing reverse IPv4 zones...
+for ip4_net in `ls reverse-zones/ipv4* | cut -d/ -f2 | sed 's/.xsl//;s/ipv4-//;s/ipv6-//'` 
+do
+  echo '	' $ip4_net
+  xsltproc --novalid \
+	--stringparam target_network $ip4_net \
+	--stringparam target_proto ipv4 \
+	xsl-res/rev-soa.xsl net_list.xml \
+	> ../../reverse/headers/ipv4-$ip4_net || exit -1
+  xsltproc --novalid reverse-zones/ipv4-$ip4_net.xsl host_list.xml > ../../reverse/zones/ipv4-$ip4_net || exit -1
+done
+echo Done
+echo
+
+echo Processing reverse IPv6 zones...
+for ip6_net in `ls reverse-zones/ipv6* | cut -d/ -f2 | sed 's/.xsl//;s/ipv4-//;s/ipv6-//'`
+do
+  echo '	' $ip6_net
+  xsltproc --novalid \
+	--stringparam target_network $ip6_net \
+	--stringparam target_proto ipv6 \
+	xsl-res/rev-soa.xsl net_list.xml \
+	> ../../reverse/headers/ipv6-$ip6_net || exit -1
+  xsltproc --novalid reverse-zones/ipv6-$ip6_net.xsl host_list.xml > ../../reverse/zones/ipv6-$ip6_net || exit -1
+done
+echo Done
+echo
+
+echo Processing host documentation...
+(cd ../../Docs/views/xslt;./generate_dbs)
+echo Done
+
+echo Processing dhcp tables...
+(cd ../../dhcp_area/xslt;./generate_dbs)
+echo Done
+

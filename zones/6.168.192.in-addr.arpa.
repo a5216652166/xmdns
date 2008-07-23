@@ -1,0 +1,18 @@
+$TTL    604800
+@ IN SOA hidyns01.hinet.lpl.arizona.edu. root.hidyns01.hinet.lpl.arizona.edu. (
+        1         ; Serial
+        604800    ; Refresh
+        86400     ; Retry
+        2419200   ; Expire
+        604800 )  ; Negative Cache TTL
+@	IN	NS	hidyns01.hinet.lpl.arizona.edu.
+@	IN	NS	hidyns02.hinet.lpl.arizona.edu.
+1.6.168.192.in-addr.arpa. IN PTR cracker.lpl.arizona.edu.
+2.6.168.192.in-addr.arpa. IN PTR pdu1.
+3.6.168.192.in-addr.arpa. IN PTR pdu2.
+4.6.168.192.in-addr.arpa. IN PTR pdu3.
+5.6.168.192.in-addr.arpa. IN PTR pdu4.
+6.6.168.192.in-addr.arpa. IN PTR ups1.
+7.6.168.192.in-addr.arpa. IN PTR cassini-array.
+8.6.168.192.in-addr.arpa. IN PTR hirise-array1.
+9.6.168.192.in-addr.arpa. IN PTR cracker-loghost.

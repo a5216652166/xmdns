@@ -1,0 +1,47 @@
+
+
+run the usual update_zones script and that will populate the tables and then as tims:
+  % cd Projects/bind;svn update
+
+Finally,
+
+ % ssh root@pirlnet-old /etc/init.d/dhcpd restart
+
+ALL DONE!
+
+--------------------------------------------------------------------------------
+
+
+OLD DOC:
+
+Classes:
+
+  machine 1:
+    One mac, one ip
+      class "ian.lpl.arizona.edu" {
+        match pick-first-value (option dhcp-client-identifier, hardware); }
+        subclass "ian.lpl.arizona.edu" 00:16:cb:39:9d:26;
+
+  machine 2:
+    Two mac, one ip
+      class "gearhead-III.pirlnet.lpl.arizona.edu" {
+        match pick-first-value (option dhcp-client-identifier, hardware); }
+        subclass "gearhead-III.pirlnet.lpl.arizona.edu" 00:0d:93:31:91:7a;
+        subclass "gearhead-III.pirlnet.lpl.arizona.edu" 00:0d:93:ed:17:56;
+
+  machine 3:
+    one mac, two ip
+      ... harder to find ... need one machine on two networks
+
+  machine 4:
+    two mac, two ip
+      class "olympus.hinet.lpl.arizona.edu" {
+        match pick-first-value (option dhcp-client-identifier, hardware); }
+        subclass "olympus.hinet.lpl.arizona.edu" 00:0d:93:9d:87:ad;
+        subclass "olympus.hinet.lpl.arizona.edu" 00:0d:93:9d:87:ae;
+
+
+  :wq
+
+
+

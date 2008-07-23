@@ -1,0 +1,34 @@
+<?xml version="1.0" standalone="yes"?>
+<!DOCTYPE host_list SYSTEM "host_list.dtd">
+<host_list>
+  <host>
+    <!-- how the domain will be advertised -->
+    <hostname>example.com</hostname>
+    <shortname>example</shortname>
+    <domainname>com</domainname>
+    <description>Example Domain</description>
+    <mx net="example-external">10 mx.example.com.</mx>
+    <mx net="example-external">20 mx2.example.com.</mx>
+  </host>
+  <host>
+    <!-- how the domain NS will be advertised -->
+    <hostname>example.com</hostname>
+    <shortname>example</shortname>
+    <domainname>com</domainname>
+    <description>Example Domain</description>
+    <known-duplicate>This makes configuration of the domain easier.</known-duplicate>
+    <ns net="globalnet">ns1.example.com</ns>
+    <ns net="globalnet">ns2.example.com</ns>
+  </host>
+  <host>
+    <!-- how the sub-domain NS will be advertised -->
+    <hostname>sd.example.com</hostname>
+    <shortname>sd</shortname>
+    <domainname>example.com</domainname>
+    <description>Example Sub-Domain</description>
+    <ns net="globalnet">ns1.sd.example.com</ns>
+    <ns net="globalnet">ns2.sd.example.com</ns>
+    <ns net="example-internal">internal-ns1.sd.example.com</ns>
+    <ns net="example-internal">internal-ns2.sd.example.com</ns>
+  </host>
+</host_list>

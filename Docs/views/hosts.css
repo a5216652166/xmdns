@@ -1,0 +1,87 @@
+
+td {
+  padding-left: .25em;
+  padding-right: .25em;
+}
+
+th.hostname {
+  background: #aaa;
+  color: #000;
+}
+
+.hostname {
+  background: #fff;
+  color: #000;
+}
+
+th.sonett {
+  background: #00a;
+}
+.sonett {
+  background: #00f;
+}
+
+th.hinet_dmz {
+  background: #aa0;
+}
+.hinet_dmz {
+  background: #ff0;
+  color: #000;
+}
+
+th.hinet_int {
+ background: #a84;
+}
+.hinet_int {
+ background: #fa8;
+ color: #000;
+}
+
+th.pirlnet_dmz {
+  background: #a88;
+}
+.pirlnet_dmz {
+  background: #faa;
+  color: #000;
+}
+
+th.pirlnet_int {
+  background: #80a;
+}
+.pirlnet_int {
+  background: #a0f;
+  color: #000;
+}
+
+th.securenet {
+  background: #a00;
+}
+.securenet {
+  background: #f00;
+  color: #000;
+}
+
+.printernet {
+}
+
+th.hinet-san {
+  background: #333;
+}
+.hinet-san {
+  background: #555;
+  color: #fff;
+}
+
+th.description {
+  background: #aaa;
+}
+.description {
+  background: #fff;
+  color: #000;
+}
+
+
+.action {
+  background: #000;
+  color: #f00;
+}

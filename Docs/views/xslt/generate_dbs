@@ -1,0 +1,3 @@
+xsltproc -o ../all-hosts.html all-hosts.xsl ../../../res/db/host_list.xml
+xsltproc -o ../todo-hosts.html todo-hosts.xsl ../../../res/db/host_list.xml
+xsltproc -o ../check_dns.sh check_dns.xsl ../../../res/db/host_list.xml

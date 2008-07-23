@@ -1,0 +1,6 @@
+xsltproc sorted_host_list.xsl ../host_list.xml | \
+   xmlindent > ../sorted_host_list.xml 
+xsltproc sorted_host_ldif.xsl ../host_list.xml > ../sorted_host.ldif
+xsltproc sorted_host_list.xsl ../.host_list.xml | \
+   xmlindent > ../.sorted_host_list.xml 
+# cat ../sorted_host_list.xml

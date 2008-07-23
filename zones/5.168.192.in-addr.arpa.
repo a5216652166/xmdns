@@ -1,0 +1,31 @@
+$TTL    604800
+@ IN SOA hidyns01.hinet.lpl.arizona.edu. root.hidyns01.hinet.lpl.arizona.edu. (
+        1         ; Serial
+        604800    ; Refresh
+        86400     ; Retry
+        2419200   ; Expire
+        604800 )  ; Negative Cache TTL
+@	IN	NS	hidyns01.hinet.lpl.arizona.edu.
+@	IN	NS	hidyns02.hinet.lpl.arizona.edu.
+1.5.168.192.in-addr.arpa. IN PTR pirlnet.lpl.arizona.edu.
+15.5.168.192.in-addr.arpa. IN PTR pirl-ts1.lpl.arizona.edu.
+16.5.168.192.in-addr.arpa. IN PTR pirl-du1.lpl.arizona.edu.
+17.5.168.192.in-addr.arpa. IN PTR pirl-du2.lpl.arizona.edu.
+18.5.168.192.in-addr.arpa. IN PTR pirl-du3.lpl.arizona.edu.
+19.5.168.192.in-addr.arpa. IN PTR pirl-du4.lpl.arizona.edu.
+20.5.168.192.in-addr.arpa. IN PTR icarus.pirlnet.lpl.arizona.edu.
+21.5.168.192.in-addr.arpa. IN PTR pallas.pirlnet.lpl.arizona.edu.
+22.5.168.192.in-addr.arpa. IN PTR daedalus.lpl.arizona.edu.
+23.5.168.192.in-addr.arpa. IN PTR minas.lpl.arizona.edu.
+24.5.168.192.in-addr.arpa. IN PTR airport-ramp.pirlnet.lpl.arizona.edu.
+25.5.168.192.in-addr.arpa. IN PTR gearhead-III.pirlnet.lpl.arizona.edu.
+26.5.168.192.in-addr.arpa. IN PTR charon.lpl.arizona.edu.
+27.5.168.192.in-addr.arpa. IN PTR who.lpl.arizona.edu.
+28.5.168.192.in-addr.arpa. IN PTR ceres.lpl.arizona.edu.
+29.5.168.192.in-addr.arpa. IN PTR norby.lpl.arizona.edu.
+30.5.168.192.in-addr.arpa. IN PTR pele.lpl.arizona.edu.
+31.5.168.192.in-addr.arpa. IN PTR mimas.lpl.arizona.edu.
+32.5.168.192.in-addr.arpa. IN PTR scamera.lpl.arizona.edu.
+33.5.168.192.in-addr.arpa. IN PTR scamera2.pirlnet.lpl.arizona.edu.
+34.5.168.192.in-addr.arpa. IN PTR scamera3.pirlnet.lpl.arizona.edu.
+35.5.168.192.in-addr.arpa. IN PTR displaymac.pirlnet.lpl.arizona.edu.

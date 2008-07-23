@@ -1,0 +1,4 @@
+This section is highly specific to the HiRISE project. It should be
+re-written to be automatically generated via the "update_other" script
+in the res/db directory. Then it can be integrated with the rest of
+the system.

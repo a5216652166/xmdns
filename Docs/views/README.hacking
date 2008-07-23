@@ -1,0 +1,7 @@
+The documentation has been quickly written which means there are
+hard-coded values specific to the HiRISE project. The basic
+documentation can be easily modified to suit the needs of a
+particular organization.
+
+To do this, you should start in the "xslt" folder, however it is
+not supported at this time and may be overwritten in the future.

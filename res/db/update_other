@@ -1,0 +1,93 @@
+#!/bin/bash
+
+# Get a list of valid network names
+PIPE_SEPARATED_NET_LIST=`xsltproc --novalid tools/netlist.xsl net_list.xml | sed 's/:.*//g' | awk '{printf "|%s", $1 }' | sed 's/^|//'`
+COMMA_SEPARATED_NET_LIST=`echo $PIPE_SEPARATED_NET_LIST | sed 's/|/,/g'`
+# Get a list of network views
+NETWORK_VIEWS=`xsltproc --novalid tools/network_views.xsl net_list.xml`
+IPv4_NETWORKS=`xsltproc --novalid --stringparam target_proto ipv4 tools/physical_networks.xsl net_list.xml`
+IPv6_NETWORKS=`xsltproc --novalid --stringparam target_proto ipv6 tools/physical_networks.xsl net_list.xml`
+
+# Generate new versions of files from templates
+for file in TEMPLATES/*.dtd; do
+  if [ -f $file ]; then
+    base_file=`echo $file | cut -d/ -f2`
+    echo -n Generating $base_file...
+    cat $file | \
+      sed "s/PIPE_SEPARATED_NET_LIST/$PIPE_SEPARATED_NET_LIST/" | \
+      sed "s/COMMA_SEPARATED_NET_LIST/$COMMA_SEPARATED_NET_LIST/" > $base_file
+    echo done
+  fi
+done
+
+for net_def in `xsltproc --novalid tools/netlist.xsl net_list.xml`; do
+  NET=`echo $net_def | cut -d: -f1`;
+  PRIO=`echo $net_def | cut -d: -f2 | sed s/,$//`; # Get rid of trailing,
+  MX=`echo $net_def | cut -d: -f3 `; # Get rid of trailing,
+  if [ "x$PRIO" == "x" ]; then
+    echo skip resolve order for $NET
+    continue
+  fi
+  echo -n Setting network resolve order for $NET...
+  cat TEMPLATES/FORWARD-TEMPLATE.xsl | \
+    sed "s/COMMA_SEPARATED_NET_PRIORITY/$PRIO/" | \
+    sed "s/DEFAULT_MX/$MX/" > forward-zones/$NET.xsl
+  echo done
+done
+
+for net_def in `xsltproc --novalid tools/netlist.xsl net_list.xml`; do
+  NET=`echo $net_def | cut -d: -f1`;
+  PRIO=`echo $net_def | cut -d: -f2 | sed s/,$//`; # Get rid of trailing,
+  MX=`echo $net_def | cut -d: -f3 `; # Get rid of trailing,
+  if [ "x$PRIO" == "x" ]; then
+    echo skip resolve order for $NET
+    continue
+  fi
+  echo -n Setting network resolve order for $NET...
+  cat TEMPLATES/FORWARD-TEMPLATE.xsl | \
+    sed "s/COMMA_SEPARATED_NET_PRIORITY/$PRIO/" | \
+    sed "s/DEFAULT_MX/$MX/" > forward-zones/$NET.xsl
+  echo done
+done
+
+echo IPv4 Networks: $IPv4_NETWORKS
+rm reverse-zones/*.xsl
+for net_def in $IPv4_NETWORKS; do
+  echo -n IPv4: $net_def ...
+  cat TEMPLATES/REVERSE-TEMPLATE.xsl | \
+    sed "s/PROTOCOL/IPv4/" | \
+    sed "s/NETWORK_NAME/$net_def/" \
+    > reverse-zones/ipv4-$net_def.xsl
+  echo done
+done
+
+echo IPv6 Networks: $IPv6_NETWORKS
+for net_def in $IPv6_NETWORKS; do
+  echo -n IPv6: $net_def ...
+  cat TEMPLATES/REVERSE-TEMPLATE.xsl | \
+    sed "s/PROTOCOL/IPv6/" | \
+    sed "s/NETWORK_NAME/$net_def/" \
+    > reverse-zones/ipv6-$net_def.xsl
+  echo done
+done
+
+for viewdef in $NETWORK_VIEWS; do
+  if [ ! -d "../../views/$viewdef" ]; then
+    echo -n Creating view directory structure $viewdef...
+    mkdir -p "../../views/$viewdef/headers"
+    mkdir -p "../../views/$viewdef/zones"
+    echo done
+  fi
+done
+
+echo -n Generating named.acls...
+xsltproc --novalid tools/named_acls.xsl net_list.xml > ../../named.acls || exit -1
+echo done
+
+echo -n Generating named.views...
+xsltproc --novalid tools/named_views.xsl net_list.xml > ../../named.views || exit -1
+echo done
+
+echo -n Generating reverse/global-named.conf...
+xsltproc --novalid tools/global_named_conf.xsl net_list.xml > ../../reverse/global-named.conf || exit -1
+echo done

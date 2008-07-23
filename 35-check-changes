@@ -1,0 +1,21 @@
+#!/bin/bash
+
+svn=`which svn`
+
+if [ "x$svn" == "x" ]; then
+  echo Error: you need svn to be available in your path.
+  exit -1
+fi
+
+if [ ! -x "$svn" ]; then
+  echo Error: you need a working svn command available in your path.
+  exit -1
+fi
+
+echo Please review changes for problems.
+svn diff res/db/host_list.xml
+svn diff views
+
+echo
+echo If all changes look fine, please run ./60-commit-changes
+

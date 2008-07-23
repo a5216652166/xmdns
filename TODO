@@ -1,0 +1,6 @@
+Make Docs/cookbook a little more helpful to the casual user
+Make Docs/views to be automatically generated from res/db/update_other
+Make Docs/views/graphviz to be automatically generated from res/db/update_other
+Create an easy install path for home-users (internal-only-dns or internal/external)
+Allow editor to know about domain/network configurations
+Create graphical front-end

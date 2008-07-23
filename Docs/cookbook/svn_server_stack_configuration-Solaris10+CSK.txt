@@ -1,0 +1,91 @@
+Use bash:
+	exec bash
+
+Install Sun Compiler Suite:
+	In a browser open: http://developers.sun.com/sunstudio/downloads/index.jsp
+	Follow website steps to download the package installer and place into a directory on the target host.
+	unpack and install:
+
+	/usr/sfw/gtar -xjvf SunStudio12ml-solaris-sparc-200709-pkg.tar.bz2
+	./batch_installer --accept-sla 
+
+Setup crle path to see coolstack and sfw libs
+	crle -l /lib:/usr/lib:/opt/coolstack/lib:/usr/sfw/lib
+
+Setup env for build, default includes for built sources:
+	export PATH=/opt/coolstack/bin:/opt/SUNWspro/bin:/usr/ccs/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/sfw/bin
+	export CFLAGS="-I/opt/coolstack/include $CFLAGS"
+
+Download/build neon/svn: (Adapted from http://forum.java.sun.com/thread.jspa?threadID=5255265)
+
+	# Download/unpack sources
+	# NB: subversion 1.4.6 requires neon 0.25.5 and not the newest.
+	(cd ../downloads;wget http://www.webdav.org/neon/neon-0.25.5.tar.gz)
+	(cd ../downloads;wget http://subversion.tigris.org/downloads/subversion-1.4.6.tar.bz2)
+	gtar -xzvf ../downloads/neon-0.25.5.tar.gz
+	gtar -xjvf ../downloads/subversion-1.4.6.tar.bz2
+
+	cd neon-0.25.5/
+	./configure --prefix=/opt/coolstack --with-libxml2=/opt/coolstack --with-ssl=openssl && make && make install
+
+	cd subversion-1.4.6/
+	./configure --prefix=/opt/coolstack --with-apxs=/opt/coolstack/apache2/bin/apxs \
+		--with-apr=/opt/coolstack/apache2 --with-apr-util=/opt/coolstack/apache2 \
+		--with-neon=/opt/coolstack
+	make 
+	LD_LIBRARY_PATH=/opt/coolstack/apache2/lib make install
+
+Create the subversion repository and populate it from:
+
+	mkdir /export/svn_repos; cd !$
+	svnadmin create hosts
+	svnadmin load /export/svn_repos/hosts < /etc/r/tim/bind_repository
+	chown -R webservd hosts
+
+Create/activate an apache configuration for svn:
+
+	cat > /export/svn_repos/apache_config
+LDAPVerifyServerCert Off
+<Location "/svn">
+   AuthType basic
+   AuthName "LPL Hosts - LDAP Auth"
+   AuthBasicProvider ldap
+   AuthzLDAPAuthoritative off
+   AuthLDAPBindDN "cn=svn_proxy,ou=profile,dc=lpl,dc=arizona,dc=edu"
+   AuthLDAPBindPassword "2vn12S0Co0l!"
+   AuthLDAPURL ldaps://lpl-ls.lpl.arizona.edu,son-ls.lpl.arizona.edu/ou=People,dc=lpl,dc=arizona,dc=edu?uid
+   # AuthLDAPURL ldap://son-lm.lpl.arizona.edu/ou=People,dc=lpl,dc=arizona,dc=edu?uid
+   <LimitExcept GET PROPFIND OPTIONS REPORT>
+     Require user tims joep terryf deanj jgotobed pursch tferro
+   </LimitExcept>
+</Location> 
+
+<IfModule dav_svn_module>
+   <Location "/svn/hosts">
+       DAV svn
+       SVNPath /export/svn_repos/hosts
+       SVNReposName hosts
+   </Location> 
+</IfModule>
+(CTRL-D)
+
+	# next two lines: make sure these two modules load properly
+	# NB: mod_svn is automatically enabled during the subversion installation
+	echo 'LoadModule dav_module modules/mod_dav.so' >> /opt/coolstack/apache2/conf/httpd.conf
+	echo 'LoadModule authnz_ldap_module modules/mod_authnz_ldap.so' >> /opt/coolstack/apache2/conf/httpd.conf
+
+Enable SSL in apache:
+	vi /opt/csw/apache2/conf/httpd.conf
+		(uncomment the line "Include conf/extra/httpd-ssl.conf")
+	vi /opt/csw/apache2/conf/extra/httpd-ssl.conf
+		(Add the following line inside the VirtualHost definition)
+		Include /export/svn_repos/apache_config
+	cd /opt/coolstack/apache2/conf
+	/usr/sfw/bin/openssl req -new \
+		-x509 -days 9125 -sha1 -newkey rsa:2048 \
+		-nodes -keyout server.key -out server.crt \
+		-subj '/CN=neutron.lpl.arizona.edu'
+	chown webservd server.*;chmod 700 server.*
+
+	/opt/coolstack/apache2/bin/apachectl configtest
+	svcadm restart csk-http
