@@ -1,0 +1,19 @@
+#!/bin/bash
+
+CURRENT_URL=`svn info | grep ^URL: | cut -b 6-`
+WANTED_URL='https://xmdns.svn.sourceforge.net/svnroot/xmdns'
+
+## Re-base svn repositories, then re-update once in place
+
+if [ X$CURRENT_URL != X$WANTED_URL ]; then
+  echo
+  echo
+  echo =================================================================
+  echo Warning: your repository is not checked out from the correct URL,
+  echo =================================================================
+  echo Current URL: $CURRENT_URL
+  echo Correct URL: $WANTED_URL
+  echo
+  echo
+  svn switch --relocate $CURRENT_URL $WANTED_URL
+fi
