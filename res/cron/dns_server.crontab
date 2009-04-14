@@ -1,13 +1,6 @@
-# This file is not the live file.
 # In general this needs to be manually updated on the nameservers whenever a
 # change is made here.
-10 3 * * * /usr/sbin/logadm
-15 3 * * 0 /usr/lib/fs/nfs/nfsfind
-30 3 * * * [ -x /usr/lib/gss/gsscred_clean ] && /usr/lib/gss/gsscred_clean
-#10 3 * * * /usr/lib/krb5/kprop_script ___slave_kdcs___
-##
-#### DNS SERVER SPECIFIC PART ... GET UPDATES AND LOAD THEM IF THEY ARE GOOD
-##
+## GET UPDATES AND LOAD THEM IF THEY ARE GOOD ##
 10,40 * * * * svn update /etc/bind > /dev/null
 15,45 * * * * /opt/csw/sbin/rndc reload > /dev/null
 ## Check the status of DNS before everyone goes home (m-f)

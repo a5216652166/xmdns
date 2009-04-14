@@ -23,28 +23,18 @@ done
 for net_def in `xsltproc --novalid tools/netlist.xsl net_list.xml`; do
   NET=`echo $net_def | cut -d: -f1`;
   PRIO=`echo $net_def | cut -d: -f2 | sed s/,$//`; # Get rid of trailing,
-  MX=`echo $net_def | cut -d: -f3 `; # Get rid of trailing,
+  MX=`echo $net_def | cut -d: -f3 `;
+  FILT=`echo $net_def | cut -d: -f4 `;
   if [ "x$PRIO" == "x" ]; then
     echo skip resolve order for $NET
     continue
   fi
-  echo -n Setting network resolve order for $NET...
-  cat TEMPLATES/FORWARD-TEMPLATE.xsl | \
-    sed "s/COMMA_SEPARATED_NET_PRIORITY/$PRIO/" | \
-    sed "s/DEFAULT_MX/$MX/" > forward-zones/$NET.xsl
-  echo done
-done
-
-for net_def in `xsltproc --novalid tools/netlist.xsl net_list.xml`; do
-  NET=`echo $net_def | cut -d: -f1`;
-  PRIO=`echo $net_def | cut -d: -f2 | sed s/,$//`; # Get rid of trailing,
-  MX=`echo $net_def | cut -d: -f3 `; # Get rid of trailing,
-  if [ "x$PRIO" == "x" ]; then
-    echo skip resolve order for $NET
-    continue
+  if [ "x$FILT" != "x" ]; then
+    FILT="-$FILT"
   fi
   echo -n Setting network resolve order for $NET...
   cat TEMPLATES/FORWARD-TEMPLATE.xsl | \
+    sed "s/FORWARD_FILTER/forward$FILT/" | \
     sed "s/COMMA_SEPARATED_NET_PRIORITY/$PRIO/" | \
     sed "s/DEFAULT_MX/$MX/" > forward-zones/$NET.xsl
   echo done

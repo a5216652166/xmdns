@@ -10,5 +10,5 @@
 
   <xsl:template name="default_mx">DEFAULT_MX</xsl:template>
 
-  <xsl:include href="../xsl-res/forward.xsl"/>
+  <xsl:include href="../xsl-res/FORWARD_FILTER.xsl"/>
 </xsl:stylesheet>

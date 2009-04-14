@@ -305,7 +305,7 @@ class SRVValidator(RecordValidator):
     hostname = fqdnValidator.validRecord('fqdn', hostname, networkName)
     if not( hostname ):
       return None
-    return '%s %s.' % ( prio, hostname )
+    return '%s %s %s %s' % ( prio, weight, port, hostname )
 
 if __name__ == "__main__":
   print "Output below this line represents a failed test."

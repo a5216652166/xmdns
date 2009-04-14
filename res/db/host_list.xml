@@ -2,7 +2,6 @@
 <!DOCTYPE host_list SYSTEM "host_list.dtd">
 <host_list>
   <host>
-    <!-- how the domain will be advertised -->
     <hostname>example.com</hostname>
     <shortname>example</shortname>
     <domainname>com</domainname>
@@ -11,7 +10,6 @@
     <mx net="example-external">20 mx2.example.com.</mx>
   </host>
   <host>
-    <!-- how the domain NS will be advertised -->
     <hostname>example.com</hostname>
     <shortname>example</shortname>
     <domainname>com</domainname>
@@ -21,14 +19,30 @@
     <ns net="globalnet">ns2.example.com</ns>
   </host>
   <host>
-    <!-- how the sub-domain NS will be advertised -->
     <hostname>sd.example.com</hostname>
     <shortname>sd</shortname>
     <domainname>example.com</domainname>
     <description>Example Sub-Domain</description>
-    <ns net="globalnet">ns1.sd.example.com</ns>
-    <ns net="globalnet">ns2.sd.example.com</ns>
     <ns net="example-internal">internal-ns1.sd.example.com</ns>
     <ns net="example-internal">internal-ns2.sd.example.com</ns>
+    <ns net="globalnet">ns1.sd.example.com</ns>
+    <ns net="globalnet">ns2.sd.example.com</ns>
+  </host>
+  <host>
+    <hostname>puppy.sd.example.com</hostname>
+    <shortname>puppy</shortname>
+    <domainname>sd.example.com</domainname>
+    <description>Example kerberos server</description>
+    <a net="example-dual-stack">192.0.2.5</a>
+    <aaaa net="example-dual-stack">2001:db8::5</aaaa>
+  </host>
+  <host>
+    <hostname>_kerberos._udp.sd.example.com</hostname>
+    <shortname>_kerberos._udp</shortname>
+    <domainname>sd.example.com</domainname>
+    <description>SRV helper records for the kerberos realm SD.EXAMPLE.COM</description>
+    <notes>puppy will be used primarily and dog is used in case of failure</notes>
+    <srv net="globalnet">0 1 88 puppy.sd.example.com</srv>
+    <srv net="globalnet">1 1 88 dog.sd.example.com</srv>
   </host>
 </host_list>
