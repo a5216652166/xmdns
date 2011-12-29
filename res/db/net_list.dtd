@@ -1,6 +1,7 @@
 <!ELEMENT net_list (network*)>
-<!ELEMENT network (name,description?,prefix*,notes*,default-mx?,match-clients*,ignore-ipv4-reverse-resolve?,no-global-reverse-resolve?,ns*,extra-reverse*,(resolve+|no-resolve))>
+<!ELEMENT network (name,color?,description?,prefix*,notes*,default-mx?,match-clients*,ignore-ipv4-reverse-resolve?,no-global-reverse-resolve?,ns*,extra-reverse*,(resolve+|no-resolve))>
 <!ELEMENT name (#PCDATA)>
+<!ELEMENT color (#PCDATA)>
 <!ELEMENT description (#PCDATA)>
 <!ELEMENT default-mx (#PCDATA)>
 <!-- Extra networks to reverse resolve within this view -->
@@ -34,4 +35,5 @@
 <!ATTLIST prefix	proto	(ipv4|ipv6) #REQUIRED>
 <!ATTLIST network	type	(virtual|aggregate|physical) #REQUIRED>
 <!ATTLIST network	recursion	(yes|no) #REQUIRED>
+<!ATTLIST network	filter	(none|only-ipv4|only-ipv6) 'none'>
 <!ATTLIST match-clients	special	(none|any|localhost|localnets|ip) 'ip'>

@@ -64,7 +64,9 @@ Installation:
 
     3) Checkout the subversion repository at the location "/etc/bind". If your
        repository exists at "http://example.com/svn/bind" then you would run:
-
+	
+	# in test case
+	# svn co https://xmdns/svn/hosts /etc/bind
        # svn co http://examples.com/svn/bind /etc/bind
 
        (Sanity check that /etc/bind/named.conf exists/is from the repository)
@@ -101,6 +103,8 @@ Installation:
     include "/etc/bind/named.conf";
     ----------------------------------------------------------------------------
 
+mkdir /var/cache/bind -- universal or just csw?
+
   You can now start bind as prescribed by your installation. This may vary between
   operating systems, some examples are given below:
 
@@ -129,6 +133,13 @@ Configure CRON:
 
   Run these commands in a minimal shell to ensure that they work properly.
 
+For test case:
+
+10,40 * * * * /opt/coolstack/bin/svn update /etc/bind > /dev/null
+15,45 * * * * /opt/csw/sbin/rndc reload > /dev/null
+## Check the status of DNS before everyone goes home (m-f)
+46 16 * * 1-5 /opt/csw/sbin/rndc status
+
 Testing the Installation:
 =========================
 
@@ -137,4 +148,4 @@ Testing the Installation:
   query from another host or minimally from the same host using the published
   address.
 
-  # dig hostname.example.com @192.0.2.2 ANY
+  # dig hostname.example.com @192.168.0.2 ANY

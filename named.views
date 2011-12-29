@@ -1,29 +1,34 @@
 view "admin-hosts-view" {
   match-clients { admin-hosts; };
+  allow-recursion { admin-hosts; };
   recursion yes;
   include "/etc/bind/views/admin-hosts/named.conf";
 };
 
 view "example-dual-stack-view" {
   match-clients { example-dual-stack; };
+  allow-recursion { example-dual-stack; };
   recursion yes;
   include "/etc/bind/views/example-dual-stack/named.conf";
 };
 
 view "example-private-view" {
   match-clients { example-private; };
+  allow-recursion { example-private; };
   recursion yes;
   include "/etc/bind/views/example-private/named.conf";
 };
 
 view "example-internal-view" {
   match-clients { example-internal; };
+  allow-recursion { example-internal; };
   recursion yes;
   include "/etc/bind/views/example-internal/named.conf";
 };
 
 view "example-external-view" {
   match-clients { example-external; };
+  allow-recursion { example-external; };
   recursion yes;
   include "/etc/bind/views/example-external/named.conf";
 };

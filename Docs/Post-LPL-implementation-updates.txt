@@ -1,0 +1,25 @@
+﻿Updates for XML DNS after full implementation at LPL:
+Last update 9/11/08
+
+Kerberos records for systems as a segue into NFSv4 support
+
+SPF records for himails
+
+Round-Robin DNS for himail1/himail2
+
+Round-Robin DNS for pirlmail1/pirlmail2
+	nope.  pirlmail cname should eventually point to pirlmail1, no round robin.
+	pirlmail2 will just bring up an ip address of pirlmail1 if it needs to be brought up.
+
+Round-Robin DNS for hirise.lpl.arizona.edu
+
+Round-Robin DNS for pirlwww.lpl.arizona.edu
+
+Round-Robin DNS for VPN servers.
+
+IPv6 records published on SonettNet
+
+
+
+
+

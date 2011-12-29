@@ -13,27 +13,8 @@ To add/remove/modify host entries you can follow the recipe:
 
   Each stage should guide you to the next.
 
-To just add a new host (IPv4 only):
-
-  ./05-update-source
-  ./09-find-open-ip 192.0.2.0
-  ./10-add-host \
-    --hostname ws1 \
-    --domain example.com \
-    --a 192.0.2.15 \
-    --description "Hi, my name is Joe, and I work in a button factory."
-  ./30-update-zones
-  ./35-check-changes (this is optional)
-  ./60-commit-changes
-
 Uncommon Tasks:
 ===============
-
-To add hand crafted entries that do not fit in the normal scheme:
-
-  edit views/{network}/headers/db-{zone name}
-  svn commit
-  update ns servers (automatically done via cron)
 
 To add a new domain:
 

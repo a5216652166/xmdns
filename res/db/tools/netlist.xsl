@@ -16,6 +16,8 @@
     <xsl:value-of select="default-mx" />
     <xsl:text>:</xsl:text>
     <xsl:value-of select="@filter" />
+    <xsl:text>:</xsl:text>
+    <xsl:value-of select="color" />
     <xsl:text>
 </xsl:text>
   </xsl:template>

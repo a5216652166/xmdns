@@ -27,7 +27,14 @@ $TTL	</xsl:text>
         <xsl:value-of select="AdminMail"/>
         <xsl:text>. (
 	</xsl:text>
-	<xsl:value-of select="Serial"/>
+	<xsl:choose>
+	  <xsl:when test="Serial='DATE'">
+	    <xsl:value-of select="$target_serial"/>
+	  </xsl:when>
+	  <xsl:otherwise>
+	    <xsl:value-of select="Serial"/>
+	  </xsl:otherwise>
+	</xsl:choose>
         <xsl:text>	  ; Serial
 	</xsl:text>
 	<xsl:value-of select="Refresh"/>

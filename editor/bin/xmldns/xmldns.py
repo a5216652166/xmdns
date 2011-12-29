@@ -179,7 +179,15 @@ class XMLHostList:
       if "net" in node.attributes.keys() :
         # if node.localName == 'a':
         # print "NET: " + node.localName
-        newHost.addDNSRecord(node.localName, node.childNodes[0].wholeText, node.attributes["net"].value)
+        ttl = None
+        if "ttl" in node.attributes.keys():
+          ttl = node.attributes["ttl"].value
+        newHost.addDNSRecord(
+        	node.localName,
+        	node.childNodes[0].wholeText,
+        	node.attributes["net"].value,
+        	ttl
+        	)
       else:
         # print "NO NET: " + node.localName
         if node.childNodes:
@@ -369,16 +377,19 @@ class XMLHost:
     """ addRecord(XMLHost, string, string) - adds a non-DNS record (action/description/macAddress/notes...)
 
     """
+    # normalize all mac addresses for ease of comparison/search/...
+    if recordType == 'macAddress':
+      recordData = self.expandMac(recordData)
     return self.__otherRecords.add(recordType, recordData)
 
   def removeRecord(self, recordType, recordData):
     return self.__otherRecords.remove(recordType, recordData)
 
-  def addDNSRecord(self, recordType, recordData, recordNet):
+  def addDNSRecord(self, recordType, recordData, recordNet, recordTTL = None):
     """ addDNSRecord(XMLHost, string, string, string) - adds a DNS record (a/aaaa/loc/mx...)
 
     """
-    return self.__dnsRecords.add(recordType, recordData, recordNet)
+    return self.__dnsRecords.add(recordType, recordData, recordNet, recordTTL)
 
   def removeDNSRecord(self, recordType, recordData, recordNet):
     ''' getRecords(self) -> ( dnsRecords, otherRecords )
@@ -449,9 +460,34 @@ class XMLHost:
     for record in self.__otherRecords.getRecords():
       ret += "    <" + record.recordType + '>' + record.recordData + '</' + record.recordType + '>' + "\n"
     for record in self.__dnsRecords.getRecords():
-      ret += "    <" + record.recordType + ' net="' + record.recordNet + '">' + record.recordData + '</' + record.recordType + '>' + "\n"
+      ttl=''
+      if record.recordTTL:
+        ttl=' ttl="' + record.recordTTL + '"'
+      ret += "    <" + record.recordType + ' net="' + record.recordNet + '"' + ttl + '>' + record.recordData + '</' + record.recordType + '>' + "\n"
     ret += "  </host>\n" 
     return ret
+
+  def expandMac(self, macAddress):
+    '''turn 0:1:2:3:4:5 into 00:01:02:03:04:05 for ease of comparison'''
+    def twolong(a):
+      if len(a) < 2:
+        return "0" + a
+      return a
+
+    pieces = map(twolong, macAddress.split(":"))
+    return ":".join(pieces).lower()
+
+  def hasMac(self, macAddress):
+    '''hasMac(self, macAddress) -> 0/1 (false/true)
+
+    determines if macAddress is contained in this entry
+    '''
+    macAddress = self.expandMac( macAddress )
+    for record in self.__otherRecords.getRecords():
+      if record.recordType == 'macAddress':
+        if self.expandMac(record.recordData) == macAddress:
+          return 1
+    return 0
 
   def hasNetwork(self, netName):
     '''hasNetwork(self, netName) -> 0/1 (false/true)
@@ -508,6 +544,7 @@ class RecordList:
     return None
 
   def getRecords(self):
+    self.__records.sort()
     return self.__records
 
 class DNSRecordList(RecordList):
@@ -521,8 +558,8 @@ class DNSRecordList(RecordList):
     self.__dnsRecords = []
 
   # adds a DNS record to the list
-  def add(self, recordType, recordData, recordNet):
-    self.__dnsRecords.append( DNSRecord(recordType, recordData, recordNet) )
+  def add(self, recordType, recordData, recordNet, recordTTL):
+    self.__dnsRecords.append( DNSRecord(recordType, recordData, recordNet, recordTTL) )
 
   def remove(self, recordType, recordData, recordNet):
     targetRecord = DNSRecord( recordType, recordData, recordNet )
@@ -574,12 +611,15 @@ class DNSRecord(Record):
   recordNet - building1 net
   """
 
-  def __init__(self, recordType, recordData, recordNet):
+  def __init__(self, recordType, recordData, recordNet, recordTTL=None):
     self.recordType = recordType
     self.recordData = recordData
     self.recordNet  = recordNet
+    self.recordTTL  = recordTTL
 
   def __str__(self):
+    if self.recordTTL:
+    	return "%5s [%s]: %s (ttl=%s)" % ( self.recordType, self.recordNet, self.recordData, self.recordTTL )
     return "%5s [%s]: %s" % ( self.recordType, self.recordNet, self.recordData )
 
   # Rich comparison for records

@@ -1,3 +1,5 @@
+Validated against Solaris U4 and Coolstack 1.2.  Coolstack 1.3 is compiled against u5 or higher. CSKamp package install plus any dependencies.
+
 Use bash:
 	exec bash
 
@@ -6,7 +8,7 @@ Install Sun Compiler Suite:
 	Follow website steps to download the package installer and place into a directory on the target host.
 	unpack and install:
 
-	/usr/sfw/gtar -xjvf SunStudio12ml-solaris-sparc-200709-pkg.tar.bz2
+	/usr/sfw/bin/gtar -xjvf SunStudio12ml-solaris-sparc-200709-pkg.tar.bz2
 	./batch_installer --accept-sla 
 
 Setup crle path to see coolstack and sfw libs
@@ -15,6 +17,10 @@ Setup crle path to see coolstack and sfw libs
 Setup env for build, default includes for built sources:
 	export PATH=/opt/coolstack/bin:/opt/SUNWspro/bin:/usr/ccs/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/sfw/bin
 	export CFLAGS="-I/opt/coolstack/include $CFLAGS"
+# move gcc out of the way just in case.
+# Neon/Subversion HAS to be built with Sun CC just like Apache was.
+# gcc likes to take over if it is in the path.
+mv /usr/sfw/bin/gcc /usr/sfw/bin/gcc.off
 
 Download/build neon/svn: (Adapted from http://forum.java.sun.com/thread.jspa?threadID=5255265)
 
@@ -25,8 +31,11 @@ Download/build neon/svn: (Adapted from http://forum.java.sun.com/thread.jspa?thr
 	gtar -xzvf ../downloads/neon-0.25.5.tar.gz
 	gtar -xjvf ../downloads/subversion-1.4.6.tar.bz2
 
+# for Solaris u4  and Coolstack 1.2 install openssl-0.9.8 before cool stack into --prefix=/opt/coolstack
+	wget 
+
 	cd neon-0.25.5/
-	./configure --prefix=/opt/coolstack --with-libxml2=/opt/coolstack --with-ssl=openssl && make && make install
+	./configure --prefix=/opt/coolstack --with-libxml2=/opt/coolstack --with-ssl=openssl --enable-shared && make && make install
 
 	cd subversion-1.4.6/
 	./configure --prefix=/opt/coolstack --with-apxs=/opt/coolstack/apache2/bin/apxs \
@@ -37,8 +46,10 @@ Download/build neon/svn: (Adapted from http://forum.java.sun.com/thread.jspa?thr
 
 Create the subversion repository and populate it from:
 
-	mkdir /export/svn_repos; cd !$
+	mkdir /export/svn_repos
+	cd /export/svn_repos
 	svnadmin create hosts
+	Get latest backup of the bind repository, make it available on web
 	svnadmin load /export/svn_repos/hosts < /etc/r/tim/bind_repository
 	chown -R webservd hosts
 
@@ -75,10 +86,13 @@ LDAPVerifyServerCert Off
 	echo 'LoadModule authnz_ldap_module modules/mod_authnz_ldap.so' >> /opt/coolstack/apache2/conf/httpd.conf
 
 Enable SSL in apache:
-	vi /opt/csw/apache2/conf/httpd.conf
+	vi /opt/coolstack/apache2/conf/httpd.conf
+		(uncomment dav_module line)
+		(uncomment dav_fs module line)
 		(uncomment the line "Include conf/extra/httpd-ssl.conf")
-	vi /opt/csw/apache2/conf/extra/httpd-ssl.conf
-		(Add the following line inside the VirtualHost definition)
+
+	vi /opt/coolstack/apache2/conf/extra/httpd-ssl.conf
+		(Add the following line just before the VirtualHost definition)
 		Include /export/svn_repos/apache_config
 	cd /opt/coolstack/apache2/conf
 	/usr/sfw/bin/openssl req -new \
@@ -88,4 +102,6 @@ Enable SSL in apache:
 	chown webservd server.*;chmod 700 server.*
 
 	/opt/coolstack/apache2/bin/apachectl configtest
-	svcadm restart csk-http
+svcadm enable csk-http
+svcs -xv csk-http
+mv /usr/sfw/bin/gcc.off /usr/sfw/bin/gcc

@@ -1,0 +1,12 @@
+logging {
+
+    # Let's keep this around so we know what is paotentially killing
+    # our caches
+    channel querylog {      
+        file "/var/log/bind/query.log" versions 3 size 2g;
+        print-category yes;
+        print-severity yes;
+        print-time yes;
+    }; 
+    category queries { querylog; }; 
+};

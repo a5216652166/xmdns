@@ -13,8 +13,9 @@ if [ ! -x "$svn" ]; then
 fi
 
 echo Please review changes for problems.
-svn diff res/db/host_list.xml
-svn diff views
+svn diff \
+	res/db/host_list.xml \
+	views/*/{named.conf,extra-reverse.conf,zones}
 
 echo
 echo If all changes look fine, please run ./60-commit-changes

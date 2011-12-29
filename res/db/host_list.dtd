@@ -35,3 +35,14 @@
 <!ATTLIST rp	net	(admin-hosts|example-dual-stack|example-private|example-internal|example-external|example-stub|globalnet) #REQUIRED>
 <!ATTLIST srv	net	(admin-hosts|example-dual-stack|example-private|example-internal|example-external|example-stub|globalnet) #REQUIRED>
 <!ATTLIST txt	net	(admin-hosts|example-dual-stack|example-private|example-internal|example-external|example-stub|globalnet) #REQUIRED>
+<!-- all DNS records can have a TTL -->
+<!ATTLIST a	ttl	CDATA #IMPLIED>
+<!ATTLIST aaaa	ttl	CDATA #IMPLIED>
+<!ATTLIST cname	ttl	CDATA #IMPLIED>
+<!ATTLIST loc	ttl	CDATA #IMPLIED>
+<!ATTLIST mx	ttl	CDATA #IMPLIED>
+<!ATTLIST ns	ttl	CDATA #IMPLIED>
+<!ATTLIST ptr	ttl	CDATA #IMPLIED>
+<!ATTLIST rp	ttl	CDATA #IMPLIED>
+<!ATTLIST srv	ttl	CDATA #IMPLIED>
+<!ATTLIST txt	ttl	CDATA #IMPLIED>

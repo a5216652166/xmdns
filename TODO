@@ -1,6 +1,25 @@
-Make Docs/cookbook a little more helpful to the casual user
-Make Docs/views to be automatically generated from res/db/update_other
-Make Docs/views/graphviz to be automatically generated from res/db/update_other
-Create an easy install path for home-users (internal-only-dns or internal/external)
-Allow editor to know about domain/network configurations
-Create graphical front-end
+Stage 1: (Complete)
+  . Create net_list.xml/dtd and seed the host_list.dtd from a template+net_list
+  . Seed forward-zones from net_list.xml
+  . Seed /etc/bind/views/* from net_list.xml
+  . Seed /etc/bind/named.acls from net_list.xml
+  . Seed /etc/bind/named.views from net_list.xml
+Stage 2:
+  . Create domain_list.xml/dtd and verify host_list.xml against contents.
+  . Create /etc/bind/views/{view}/named.conf from domain_list.xml
+  . Create /etc/bind/views/{view}/headers/db-{domain} from domain_list.xml
+    x include by_hand/db-{domain}
+    . include zones/db-{domain}
+  . Create /etc/bind/reverse/global-named.conf
+  . Create /etc/bind/reverse/headers/*
+  x Touch /etc/bind/views/{view}/by_hand/db-{domain} from domain_list.xml
+  (needed?) Move domain information out of host_list.xml
+  (needed?) Verify that moved content is the same
+Stage 3:
+  Create/enable data syntax verification (a/aaaa/...)
+  Verify all config include locations are correct
+    - forward
+    - reverse
+    - load on non-production dns server
+    - manually verify that include paths make sense
+  Document new paths in the README

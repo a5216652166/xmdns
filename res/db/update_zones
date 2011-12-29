@@ -16,11 +16,23 @@ xmllint --noblanks --valid domain_list.xml --noout || exit -1
 echo Checking host_list.xml syntax...
 xmllint --noblanks --valid host_list.xml --noout || exit -1
 echo Checking net_list.xml syntax...
-xmllint --noblanks --valid net_list.xml --noout || exit -1
+## We get an error on newer xmllint's about the optional attributes
+# xmllint --noblanks --valid net_list.xml --noout || exit -1
+xmllint --noblanks net_list.xml --noout || exit -1
 
 ## Duplicate entry check
 echo Checking for duplicate hostnames/entries...
 xsltproc --novalid tools/hostnames.xsl	host_list.xml | sort | uniq -c | grep -v -w 1 | grep . && exit -1
+
+## Duplicate mac address entry check
+echo Checking for duplicate macAddress entries...
+DUPLICATES=$(xsltproc --novalid tools/mac_addresses.xsl	host_list.xml | awk '{print tolower($1)}' | sort | uniq -c | awk '!/^ *1/ {print $2}')
+if [[ X"$DUPLICATES" != X ]]; then
+  for macAddress in $DUPLICATES; do
+    echo error: duplicate macAddress entries found: $macAddress 1>&2
+  done
+  exit -1
+fi
 
 ## Registered domain check
 echo Checking for unregistered domains...
@@ -34,6 +46,8 @@ xsltproc --novalid tests/short_domain_hostname.xsl host_list.xml | grep . && exi
 ################################################################################
 # Done with basic tests, time to output some content.
 ################################################################################
+
+SERIAL_DATE=$(TZ=US/Arizona date '+%Y%m%d%H')
 
 ## Process each view of the DNS scheme
 echo Processing forward zones...
@@ -57,6 +71,7 @@ do
     xsltproc --novalid \
 	--stringparam target_domain $DOMAIN \
 	--stringparam target_view $VIEW \
+	--stringparam target_serial $SERIAL_DATE \
 	xsl-res/soa.xsl domain_list.xml \
 	> ../../views/$VIEW/headers/db-$DOMAIN || exit -1
     ## Meat of zone definition (done in background/in parallel)

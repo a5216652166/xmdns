@@ -22,6 +22,12 @@
     </xsl:choose>
     <xsl:text>; };
 </xsl:text>
+    <xsl:if test="@recursion='yes'">
+      <xsl:text>  allow-recursion { </xsl:text>
+        <xsl:value-of select="name" />
+      <xsl:text>; };
+</xsl:text>
+    </xsl:if>
     <xsl:text>  recursion </xsl:text>
     <xsl:value-of select="@recursion" />
     <xsl:text>;

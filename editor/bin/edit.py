@@ -142,7 +142,7 @@ def chooseDomain( state, prevMenuName = "" ):
 
 def filterMenuOptionSelector(state):
   ''' Always returns all options (for now) '''
-  return ['h','d','i','n','l','q']
+  return ['d','h','i','n','m','l','q']
 
 # Generates smaller and smaller lists until there is one or less host
 def lookupHostGen(state):
@@ -152,20 +152,22 @@ def lookupHostGen(state):
   # menuGen = getLookupHostMenuGenerator()
   # key: (humanreadable filter, hostList filter)
   actions = {
-    'h':(lambda word: "(hostname=" + word + ")", lambda host, hostname: host.shortname == hostname),
-    'd':(lambda word: "(domain=" + word + ")",   lambda host, domain: host.domainname == domain),
-    'n':(lambda word: "(network=" + word + ")",  lambda host, network: host.hasNetwork(network)),
-    'i':(lambda word: "(ip=" + word + ")",       lambda host, ip: host.hasIP(ip)),
-    'l':(lambda word: "",                        lambda host, ip: host.printHost() or 1),
-    'q':(lambda word: "",                        lambda host, ip: 0),
+    'd':(lambda word: "(domain=" + word + ")",    lambda host, domain: host.domainname == domain),
+    'h':(lambda word: "(hostname=" + word + ")",  lambda host, hostname: host.shortname == hostname),
+    'i':(lambda word: "(ip=" + word + ")",        lambda host, ip: host.hasIP(ip)),
+    'n':(lambda word: "(network=" + word + ")",   lambda host, network: host.hasNetwork(network)),
+    'm':(lambda word: "(macAddress=" + word + ")",lambda host, mac: host.hasMac(mac)),
+    'l':(lambda word: "",                         lambda host, ip: host.printHost() or 1),
+    'q':(lambda word: "",                         lambda host, ip: 0),
     }
 
   # How to prompt for input given a specific query
   prompts = {
-    'h':(lambda: getInput("hostname")),
     'd':(lambda: chooseDomain(state,  "XML Host Editor > Lookup Host - Filter")),
-    'n':(lambda: chooseNetwork(state, "XML Host Editor > Lookup Host - Filter")),
+    'h':(lambda: getInput("hostname")),
     'i':(lambda: getInput("ip")),
+    'n':(lambda: chooseNetwork(state, "XML Host Editor > Lookup Host - Filter")),
+    'm':(lambda: getInput("mac address")),
     'l':(lambda: ""),
     'q':(lambda: "")
     }
@@ -173,10 +175,11 @@ def lookupHostGen(state):
   # Generate a menu
   menuName = "XML Host Editor > Lookup Host - Filter"
   optionDict = {
-    'h':('hostname'),
     'd':('domain'),
+    'h':('hostname'),
     'i':('ip address'),
     'n':('network'),
+    'm':('mac address'),
     'l':('list hosts'),
     'q':('quit/leave filter')
   }

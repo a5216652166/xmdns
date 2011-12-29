@@ -1,0 +1,53 @@
+DNS - Domain Name System
+
+Intro URL: http://en.wikipedia.org/wiki/Domain_name_system
+
+Why not use hosts files?
+  wikipedia page:
+    Every time a given computer's address changed,
+    every computer that wanted to communicate with
+    it would need an update to its Hosts file
+
+Bind 8/9 master zone file format
+  Zone File Creator:
+    http://pgl.yoyo.org/adservers/bind-zone-file-creator.php
+
+  Resource Record (RR) Types:
+    http://www.zytrax.com/books/dns/ch8/
+
+  Zone Directives and other neat things:
+    http://www.isc.org/sw/bind/arm92/Bv9ARM.ch06.html
+
+There is already a system in LPL, why re-do it?
+
+  To support different needs
+    - Different Internal/DMZ/External network views
+    - multiple subdomains
+    - DNS Load balancing
+    - Easily extended
+
+How does the new system work?
+
+  Storage of information remains in LDAP.
+  Information is then exported to a simple xml file
+  Using XSLT, the xml file is translated into different views
+  These views are written to bind9 formatted zone files
+  The new zones are committed to a subversion repository
+  The DNS servers update their local repository and refresh
+
+What does the LDAP schema for DNS look like?
+
+  ... (FILL THIS IN OR LEAVE A REFERENCE UP) ...
+
+What about special records?
+
+  DNS is an extremely flexible protocol
+    -- mapping absolutely everything that is possible is difficult
+    -- idea is to make the most common case easy to manage
+      - host <-> ip mappings (ala /etc/hosts in the past)
+    -- DNS records aren't difficult to manage when there are only a few
+
+  Any special records get pasted into a hand crafted zone header
+  All automatically generated records are included into this header
+
+Questions/Comments?
