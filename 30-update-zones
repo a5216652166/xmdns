@@ -3,7 +3,7 @@
 # Run this script to update all DNS views.
 
 cd `dirname $0`
-(cd ./res/db/;update_zones.py);echo
+(cd ./res/db/;./update_zones.py);echo
 
 echo if no errors were reported please run ./35-check-changes
 echo or you can simply run ./60-commit-changes
