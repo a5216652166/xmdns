@@ -183,15 +183,20 @@ class XMLHostList:
         if "ttl" in node.attributes.keys():
           ttl = node.attributes["ttl"].value
         newHost.addDNSRecord(
-        	node.localName,
-        	node.childNodes[0].wholeText,
-        	node.attributes["net"].value,
-        	ttl
-        	)
+                node.localName,
+                node.childNodes[0].wholeText,
+                node.attributes["net"].value,
+                ttl
+                )
       else:
         # print "NO NET: " + node.localName
         if node.childNodes:
-          newHost.addRecord(node.localName, node.childNodes[0].wholeText)
+          if node.localName == 'dnsrr':
+            # DNS RR: <host_list><host><dnsrr><hostname>f.q.d.n</hostname><hostname>...
+            for n in node.childNodes:
+              newHost.addDNSRR(n.localName, n.childNodes[0].wholeText)
+          else:
+            newHost.addRecord(node.localName, node.childNodes[0].wholeText)
     self.__hostList.append(newHost)
 
   def getList(self):
@@ -371,6 +376,7 @@ class XMLHost:
     self.domainname = domain
     self.shortname  = shortname
     self.__dnsRecords = DNSRecordList()
+    self.__dnsRR = RecordList()
     self.__otherRecords = RecordList()
 
   def addRecord(self, recordType, recordData):
@@ -384,6 +390,15 @@ class XMLHost:
 
   def removeRecord(self, recordType, recordData):
     return self.__otherRecords.remove(recordType, recordData)
+
+  def addDNSRR(self, recordType, hostname):
+    """ addDNSRR(XMLHost, string, hostname) - adds a DNS Round Robin set
+
+    """
+    return self.__dnsRR.add(recordType, hostname)
+
+  def removeRR(self, recordType, recordData):
+    return self.__dnsRR.remove(recordType, recordData)
 
   def addDNSRecord(self, recordType, recordData, recordNet, recordTTL = None):
     """ addDNSRecord(XMLHost, string, string, string) - adds a DNS record (a/aaaa/loc/mx...)
@@ -403,13 +418,25 @@ class XMLHost:
     '''
     ret1 = []
     ret2 = []
+    ret3 = []
     for record in self.__dnsRecords.getRecords():
       if filter( record ):
         ret1.append( record )
     for record in self.__otherRecords.getRecords():
       if filter( record ):
         ret2.append( record )
-    ret = (ret1, ret2)
+    for record in self.__dnsRR.getRecords():
+      if filter( record ):
+        ret3.append( record )
+    ret = (ret1, ret2, ret3)
+    return ret
+
+  def getDNSRR(self, filter = lambda record: 1):
+    ''' getDNSRR(self, filter) -> [ records ] '''
+    ret = []
+    for record in self.__dnsRR.getRecords():
+      if filter( record ):
+        ret.append( record )
     return ret
 
   def getDNSRecords(self, filter = lambda record: 1):
@@ -438,6 +465,10 @@ class XMLHost:
       ret.append(prefix + "--DNS Entries--")
       for record in self.__dnsRecords.getRecords():
         ret.append(prefix + "%s" % record)
+    if len(self.__dnsRR.getRecords()) > 0:
+      ret.append(prefix + "--DNS Round Robin--")
+      for record in self.__dnsRR.getRecords():
+        ret.append(prefix + "%s" % record)
     return "\n".join(ret)
 
   def __str__(self):
@@ -459,6 +490,11 @@ class XMLHost:
     ret += "    <domainname>" + self.domainname + "</domainname>\n"
     for record in self.__otherRecords.getRecords():
       ret += "    <" + record.recordType + '>' + record.recordData + '</' + record.recordType + '>' + "\n"
+    if len(self.__dnsRR.getRecords()) > 0:
+      ret += "    <dnsrr>\n"
+      for record in self.__dnsRR.getRecords():
+        ret += "      <" + record.recordType + '>' + record.recordData + '</' + record.recordType + '>' + "\n"
+      ret += "    </dnsrr>\n"
     for record in self.__dnsRecords.getRecords():
       ttl=''
       if record.recordTTL:

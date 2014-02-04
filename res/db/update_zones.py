@@ -143,8 +143,6 @@ domain_list_cmd = 'xsltproc --novalid tools/domainnames_from_domain_list.xsl dom
 domain_list = check_output(domain_list_cmd)
 domain_list = [ domain for domain in domain_list.split("\n") if len(domain) > 1 ]
 
-print "Domain list: ",domain_list
-
 checks = [
 	xslCheck(
 		"domain_list.xml syntax",
@@ -168,6 +166,12 @@ checks = [
 	xslCheck(
 		"hostname=shortname.domainname",
 		"xsltproc --novalid tests/short_domain_hostname.xsl host_list.xml",
+		'no_output',
+		),
+
+	xslCheck(
+		"cname entries can't end with a dot",
+		"xsltproc --novalid tests/double_dot_cname.xsl host_list.xml",
 		'no_output',
 		),
 
@@ -292,13 +296,48 @@ for match_obj in reverse_zones:
 	jobs.append(p)
 	p.start()
 
+	# Generate dhcp tables
+	p = multiprocessing.Process(target=xsltproc, args=(
+		{
+		'target_network': reverse_view,
+		},
+		'xsl-res/dhcp_%s.xsl' % (ipv46),
+		'host_list.xml',
+		'../../dhcp_area/tables/%s_%s' % (ipv46, reverse_view)
+		)
+		)
+	jobs.append(p)
+	p.start()
+
+# regenerate etc_ethers file
+p = multiprocessing.Process(target=xsltproc, args=(
+	{},
+	'tools/etc_ethers.xsl',
+	'host_list.xml',
+	'../openstack-neutron/etc_ethers'
+	)
+	)
+jobs.append(p)
+p.start()
+
+# regenerate etc_hosts file
+p = multiprocessing.Process(target=xsltproc, args=(
+	{},
+	'tools/etc_hosts.xsl',
+	'host_list.xml',
+	'../openstack-neutron/etc_hosts'
+	)
+	)
+jobs.append(p)
+p.start()
+
 # Process host documentation
 p = multiprocessing.Process(target=call, args=(["../../Docs/views/xslt/generate_dbs"]))
 jobs.append(p)
 p.start()
 
 # Process dhcp tables
-p = multiprocessing.Process(target=call, args=(["../../dhcp_area/xslt/generate_dbs"]))
-jobs.append(p)
-p.start()
+#p = multiprocessing.Process(target=call, args=(["../../dhcp_area/xslt/generate_dbs"]))
+#jobs.append(p)
+#p.start()
 

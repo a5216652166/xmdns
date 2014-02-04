@@ -71,7 +71,17 @@
 
         </xsl:if>
       </xsl:when>
+
     </xsl:choose>
+
+    <!-- manual ptr records in the network we want? If so, ignore anything else. -->
+    <xsl:if test="./ptr[@net=$network_filter]">
+      <xsl:call-template name="print_ptr">
+        <xsl:with-param name="net">
+          <xsl:call-template name="net"/>
+        </xsl:with-param>
+      </xsl:call-template>
+    </xsl:if>
 
   </xsl:template>
 
@@ -105,6 +115,19 @@
         </xsl:with-param>
       </xsl:call-template>
       <xsl:text>ip6.arpa. IN PTR </xsl:text>
+      <xsl:value-of select="../hostname"/>
+      <xsl:text>.
+</xsl:text>
+    </xsl:for-each>
+  </xsl:template>
+
+  <!-- print out manual reverse records for specified network -->
+  <xsl:template name="print_ptr">
+    <xsl:param name="net"/>
+
+    <xsl:for-each select="./ptr[@net=$net]">
+      <xsl:value-of select="."/>
+      <xsl:text>	IN PTR </xsl:text>
       <xsl:value-of select="../hostname"/>
       <xsl:text>.
 </xsl:text>

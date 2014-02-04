@@ -302,6 +302,7 @@ def doAddRecordMenuAction( option, state ):
     'rp':		(''),
     'srv':		(''),
     'txt':		(''),
+    'dnsrr':		(''),
     'action':		(''),
     'description':	(''),
     'known-duplicate':	(''),
@@ -340,14 +341,20 @@ def doAddRecordMenuAction( option, state ):
             print "    " + freeIP
   validator = xmldns.validator.RecordValidator( state )
   recordData = None
+  userPrompt = option + " record data"
+  if option == 'dnsrr':
+    userPrompt = 'dnsrr hostname'
   while not( recordData ):
-    recordData = getInput(option + " record data")
+    recordData = getInput(userPrompt)
     recordData = validator.validRecord( option, recordData )
   currentHost = state.getCurrentHost()
   # Add record appropriately
   if option in dnsRecords:
     state.appendLog("Added: %s [%s]: %s" % (option, networkName, recordData))
     return currentHost.addDNSRecord( option, recordData, networkName )
+  if option == 'dnsrr':
+    state.appendLog("Added: %s: %s" % (option, recordData))
+    return currentHost.addDNSRR( 'hostname', recordData )
   state.appendLog("Added: %s: %s" % (option, recordData))
   return currentHost.addRecord( option, recordData )
 
@@ -357,16 +364,20 @@ def addRecordOptionSelector(state):
     return ['e']
   shortname = currentHost.shortname
   options = []
-  if not( "_" in shortname ):
-    options.append( 'a' )
-    options.append( 'aaaa' )
-    options.append( 'cname' )
-    options.append( 'mx' )
-    options.append( 'ns' )
-    options.append( 'ptr' )
-  options.append( 'rp' )
-  options.append( 'srv' )
-  options.append( 'txt' )
+  # DNS Round Robin setups do not contain their own DNS records
+  if len(currentHost.getDNSRR()) == 0:
+    if not( "_" in shortname ):
+      options.append( 'a' )
+      options.append( 'aaaa' )
+      options.append( 'cname' )
+      options.append( 'mx' )
+      options.append( 'ns' )
+      options.append( 'ptr' )
+    options.append( 'rp' )
+    options.append( 'srv' )
+    options.append( 'txt' )
+  if len(currentHost.getDNSRecords()) == 0:
+    options.append( 'dnsrr' )
   options.append( 'action' )
   options.append( 'description' )
   options.append( 'macAddress' )
@@ -397,6 +408,7 @@ def addRecord(state):
     'rp':('Responsible Person'),
     'srv':('Server'),
     'txt':('Text'),
+    'dnsrr':('DNS Round Robin'),
     'action':('Action'),
     'description':('Description'),
     'known-duplicate':('Known Duplicate'),
@@ -418,7 +430,7 @@ def addRecord(state):
 
 def deleteRecordHelper( state ):
   ''' Keep consistant state between menu generator and implementor '''
-  (dnsRecords, otherRecords) = state.getCurrentHost().getRecords()
+  (dnsRecords, otherRecords, dnsRR) = state.getCurrentHost().getRecords()
   optionDict = {
     'e':('exit/stop removing records'),
     }
@@ -429,24 +441,31 @@ def deleteRecordHelper( state ):
     optionDict[ key ] = record
     recordPos.append( record )
     i += 1
-  # remember where dns ends and non-dns begins
   dnsEnd = i
+  for record in dnsRR:
+    key = "%.2d" % i
+    optionDict[ key ] = record
+    recordPos.append( record )
+    i += 1
+  # remember where dns ends and non-dns begins
+  dnsRREnd = i
   for record in otherRecords:
     optionDict[ "%.2d" % i ] = record
     recordPos.append( record )
     i += 1
-  return (optionDict, recordPos, dnsEnd)
+  return (optionDict, recordPos, dnsEnd, dnsRREnd)
 
 def doDeleteRecordMenuAction( option, state ):
-  (optionDict, recordPos, dnsEnd) = deleteRecordHelper(state)
+  (optionDict, recordPos, dnsEnd, dnsRREnd) = deleteRecordHelper(state)
   if not( option.isdigit() ):
     return None
   option = int(option)
   targetRec = recordPos[ option ]
   state.appendLog("Removed: %s" % targetRec)
-  if option >= dnsEnd:
+  if option >= dnsRREnd:
     return state.getCurrentHost().removeRecord( targetRec.recordType, targetRec.recordData )
-  print "Remove DNS record since %d > %d" % (option, dnsEnd)
+  if option >= dnsEnd:
+    return state.getCurrentHost().removeRR( targetRec.recordType, targetRec.recordData )
   return state.getCurrentHost().removeDNSRecord( targetRec.recordType, targetRec.recordData, targetRec.recordNet )
 
 def deleteRecordOptionSelector(state, options):
@@ -463,7 +482,7 @@ def deleteRecord(state):
   option = None
   while option != 'e':
     menuName = "XML Host Editor > Modify Host > Remove Record"
-    (optionDict, recordPos, dnsEnd) = deleteRecordHelper(state)
+    (optionDict, recordPos, dnsEnd, dnsRREnd) = deleteRecordHelper(state)
     optionSelector = lambda: deleteRecordOptionSelector(state, optionDict.keys())
     finalOptionSelector = lambda option: option == 'e'
     menuGen = getMenuOption( state, menuName, optionDict, optionSelector, doDeleteRecordMenuAction, finalOptionSelector )

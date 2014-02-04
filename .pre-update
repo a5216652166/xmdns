@@ -1,0 +1,16 @@
+
+function find_exec {
+  PATH=$PATH:/Applications/Xcode.app/Contents/Developer/usr/bin/
+  type -p "$@"
+}
+
+svn=$(find_exec svn)
+
+HOST=$(hostname | awk -F. '{sub(/[0-9]+/, "");print $1}')
+
+# Don't allow the user to run update scripts on the DNS servers
+if [[ $HOST == pins ]] || [[ $HOST == hidyns ]]; then
+	echo do not run me here. >&2
+	exit -1
+fi
+

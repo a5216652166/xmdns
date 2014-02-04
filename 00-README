@@ -16,6 +16,12 @@ To add/remove/modify host entries you can follow the recipe:
 Uncommon Tasks:
 ===============
 
+To add hand crafted entries that do not fit in the normal scheme:
+
+  edit views/{network}/headers/db-{zone name}
+  svn commit
+  update ns servers (automatically done via cron)
+
 To add a new domain:
 
   edit res/db/domain_list.xml

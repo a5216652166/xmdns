@@ -13,7 +13,10 @@
       <xsl:text>,</xsl:text>
     </xsl:for-each>
     <xsl:text>:</xsl:text>
-    <xsl:value-of select="default-mx" />
+    <xsl:for-each select="default-mx">
+      <xsl:value-of select="." />
+      <xsl:text>,</xsl:text>
+    </xsl:for-each>
     <xsl:text>:</xsl:text>
     <xsl:value-of select="@filter" />
     <xsl:text>:</xsl:text>

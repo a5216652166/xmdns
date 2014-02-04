@@ -12,6 +12,9 @@ fi
 # which python
 ./editor/bin/add.py "$@"
 
+exit_status=$?
+[ "$exit_status" = "0" ] || exit $exit_status
+
 (cd res/db;xsltproc tests/syntax.xsl host_list.xml)
 
 echo If no errors were reported, please run ./30-update-zones

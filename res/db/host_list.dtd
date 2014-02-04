@@ -1,5 +1,5 @@
 <!ELEMENT host_list (host*)>
-<!ELEMENT host (hostname,shortname,domainname,action*,createdBy?,dateCreated?,description*,known-duplicate?,macAddress*,manager?,modifiedBy?,modifiedDate?,notes*,(a|aaaa|cname|loc|mx|ns|ptr|rp|srv|txt)+)>
+<!ELEMENT host (hostname,shortname,domainname,action*,createdBy?,dateCreated?,description*,known-duplicate?,dhcp6.client-id*,dhcp-filename?,dhcp-next-server?,macAddress*,manager?,modifiedBy?,modifiedDate?,notes*,((a|aaaa|cname|loc|mx|ns|ptr|rp|srv|txt)*|dnsrr))>
 <!ELEMENT hostname (#PCDATA)>
 <!ELEMENT shortname (#PCDATA)>
 <!ELEMENT domainname (#PCDATA)>
@@ -8,6 +8,9 @@
 <!ELEMENT createdDate (#PCDATA)>
 <!ELEMENT description (#PCDATA)>
 <!ELEMENT known-duplicate (#PCDATA)>
+<!ELEMENT dhcp6.client-id (#PCDATA)>
+<!ELEMENT dhcp-filename (#PCDATA)>
+<!ELEMENT dhcp-next-server (#PCDATA)>
 <!ELEMENT macAddress (#PCDATA)>
 <!ELEMENT manager (#PCDATA)>
 <!ELEMENT modifiedBy (#PCDATA)>
@@ -24,6 +27,8 @@
 <!ELEMENT rp (#PCDATA)>
 <!ELEMENT srv (#PCDATA)>
 <!ELEMENT txt (#PCDATA)>
+<!-- meta-records -->
+<!ELEMENT dnsrr (hostname+)>
 <!-- record attributes -->
 <!ATTLIST a	net	(admin-hosts|example-dual-stack|example-private|example-internal|example-external|example-stub|globalnet) #REQUIRED>
 <!ATTLIST aaaa	net	(admin-hosts|example-dual-stack|example-private|example-internal|example-external|example-stub|globalnet) #REQUIRED>

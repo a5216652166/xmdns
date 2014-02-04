@@ -1,5 +1,5 @@
 <!ELEMENT net_list (network*)>
-<!ELEMENT network (name,color?,description?,prefix*,notes*,default-mx?,match-clients*,ignore-ipv4-reverse-resolve?,no-global-reverse-resolve?,ns*,extra-reverse*,(resolve+|no-resolve))>
+<!ELEMENT network (name,color?,description?,prefix*,notes*,default-mx*,match-clients*,ignore-ipv4-reverse-resolve?,no-global-reverse-resolve?,ns*,extra-reverse*,(resolve+|no-resolve))>
 <!ELEMENT name (#PCDATA)>
 <!ELEMENT color (#PCDATA)>
 <!ELEMENT description (#PCDATA)>

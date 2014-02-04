@@ -2,6 +2,8 @@
 
 cd `dirname $0`
 
+source .pre-run
+
 if [ "x$DNSEDITOR" != "x" ]; then
   echo DNSEDITOR defined, bypassing internal editor and using: $DNSEDITOR
   echo Warning: this is not a stable interface

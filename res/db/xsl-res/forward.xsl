@@ -62,6 +62,7 @@
     <xsl:param name="net_list"/>
     <xsl:param name="original_net_list"/>
     <xsl:param name="no_ns_short_circuit"/>
+    <xsl:param name="hostname" select="hostname"/>
 
     <!-- if this network is defined then we use this definition -->
     <xsl:variable name="priority_net">
@@ -81,8 +82,7 @@
     </xsl:variable>
 
     <!-- In any particular domain file, records can only co-exist of types:
-	ns,[a]
-	ptr
+	ns,[a],[aaaa]
 	cname,[loc]
 	a|aaaa,[txt|rp|loc|mx] (and sometimes ns)
 	mx
@@ -98,7 +98,7 @@
 </xsl:text>
     -->
 
-    <!-- base case, then record precedence, then next network -->
+    <!-- base case, then dnsrr, then record precedence, then next network -->
     <xsl:choose>
 
       <!-- out of networks? -->
@@ -107,10 +107,18 @@
 </xsl:text>
       </xsl:when>
 
+      <!-- dnsrr? ok, let's Round Robin -->
+      <xsl:when test="./dnsrr">
+	<xsl:call-template name="show_host_dnsrr">
+          <xsl:with-param name="net_list" select="$original_net_list"/>
+	</xsl:call-template>
+      </xsl:when>
+
       <!-- ns records in the network we want? If so, ignore anything else. -->
       <xsl:when test="./ns[@net=$priority_net]">
 	<xsl:call-template name="show_host_ns">
           <xsl:with-param name="net_list" select="$original_net_list"/>
+          <xsl:with-param name="hostname" select="$hostname"/>
 	</xsl:call-template>
         <!-- If we are defining a nameserver for the current zone, we are allowed
              to specify other attributes for the domain. Otherwise we can not.
@@ -119,40 +127,41 @@
 
 	  <xsl:call-template name="show_host_a">
             <xsl:with-param name="net_list" select="$original_net_list"/>
+            <xsl:with-param name="hostname" select="$hostname"/>
 	  </xsl:call-template>
 	  <xsl:call-template name="show_host_aaaa">
             <xsl:with-param name="net_list" select="$original_net_list"/>
+            <xsl:with-param name="hostname" select="$hostname"/>
 	  </xsl:call-template>
 	  <xsl:call-template name="show_host_loc">
             <xsl:with-param name="net_list" select="$original_net_list"/>
+            <xsl:with-param name="hostname" select="$hostname"/>
 	  </xsl:call-template>
 	  <xsl:call-template name="show_host_mx">
             <xsl:with-param name="net_list" select="$original_net_list"/>
+            <xsl:with-param name="hostname" select="$hostname"/>
 	  </xsl:call-template>
 	  <xsl:call-template name="show_host_rp">
             <xsl:with-param name="net_list" select="$original_net_list"/>
+            <xsl:with-param name="hostname" select="$hostname"/>
 	  </xsl:call-template>
 	  <xsl:call-template name="show_host_txt">
             <xsl:with-param name="net_list" select="$original_net_list"/>
+            <xsl:with-param name="hostname" select="$hostname"/>
 	  </xsl:call-template>
 
         </xsl:if>
-      </xsl:when>
-
-      <!-- ptr records in the network we want? If so, ignore anything else. -->
-      <xsl:when test="./ptr[@net=$priority_net]">
-	<xsl:call-template name="show_host_ptr">
-          <xsl:with-param name="net_list" select="$original_net_list"/>
-	</xsl:call-template>
       </xsl:when>
 
       <!-- cname records in the network we want? If so, we might look for LOC records. -->
       <xsl:when test="./cname[@net=$priority_net]">
 	<xsl:call-template name="show_host_cname">
           <xsl:with-param name="net_list" select="$priority_net"/>
+          <xsl:with-param name="hostname" select="$hostname"/>
 	</xsl:call-template>
 	<xsl:call-template name="show_host_loc">
           <xsl:with-param name="net_list" select="$original_net_list"/>
+          <xsl:with-param name="hostname" select="$hostname"/>
 	</xsl:call-template>
       </xsl:when>
 
@@ -161,24 +170,31 @@
 
 	<xsl:call-template name="show_host_a">
           <xsl:with-param name="net_list" select="$original_net_list"/>
+          <xsl:with-param name="hostname" select="$hostname"/>
 	</xsl:call-template>
 	<xsl:call-template name="show_host_aaaa">
           <xsl:with-param name="net_list" select="$original_net_list"/>
+          <xsl:with-param name="hostname" select="$hostname"/>
 	</xsl:call-template>
 	<xsl:call-template name="show_host_loc">
           <xsl:with-param name="net_list" select="$original_net_list"/>
+          <xsl:with-param name="hostname" select="$hostname"/>
 	</xsl:call-template>
 	<xsl:call-template name="show_host_mx">
           <xsl:with-param name="net_list" select="$original_net_list"/>
+          <xsl:with-param name="hostname" select="$hostname"/>
 	</xsl:call-template>
 	<xsl:call-template name="show_host_ns">
           <xsl:with-param name="net_list" select="$original_net_list"/>
+          <xsl:with-param name="hostname" select="$hostname"/>
 	</xsl:call-template>
 	<xsl:call-template name="show_host_rp">
           <xsl:with-param name="net_list" select="$original_net_list"/>
+          <xsl:with-param name="hostname" select="$hostname"/>
 	</xsl:call-template>
 	<xsl:call-template name="show_host_txt">
           <xsl:with-param name="net_list" select="$original_net_list"/>
+          <xsl:with-param name="hostname" select="$hostname"/>
 	</xsl:call-template>
 
       </xsl:when>
@@ -196,9 +212,11 @@
       <xsl:when test="./srv[@net=$priority_net] or ./txt[@net=$priority_net]">
 	<xsl:call-template name="show_host_srv">
           <xsl:with-param name="net_list" select="$original_net_list"/>
+          <xsl:with-param name="hostname" select="$hostname"/>
 	</xsl:call-template>
 	<xsl:call-template name="show_host_txt">
           <xsl:with-param name="net_list" select="$original_net_list"/>
+          <xsl:with-param name="hostname" select="$hostname"/>
 	</xsl:call-template>
       </xsl:when>
 
@@ -208,6 +226,7 @@
           <xsl:with-param name="net_list" select="$other_net"/>
           <xsl:with-param name="original_net_list" select="$net_list"/>
           <xsl:with-param name="no_ns_short_circuit" select="$no_ns_short_circuit"/>
+          <xsl:with-param name="hostname" select="$hostname"/>
         </xsl:call-template>
       </xsl:otherwise>
 

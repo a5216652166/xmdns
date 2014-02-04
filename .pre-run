@@ -1,0 +1,18 @@
+function find_exec {
+  PATH=$PATH:/Applications/Xcode.app/Contents/Developer/usr/bin/
+  type -p "$@"
+}
+
+svn=$(find_exec svn)
+
+function require_svn {
+  if [ "x$svn" == "x" ]; then
+    echo Error: you need svn to be available in your path.
+    exit -1
+  fi
+
+  if [ ! -x "$svn" ]; then
+    echo Error: you need a working svn command available in your path.
+    exit -1
+  fi
+}

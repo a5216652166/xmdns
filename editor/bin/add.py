@@ -48,16 +48,23 @@ def saveChanges(state):
 # The main loop ################################################################
 ################################################################################
 
-def usage():
+def usage(exit_status=None, error_text=None):
   print "Usage:"
   print "  " + sys.argv[0] + " --help"
   print "  " + sys.argv[0] + " --hostname hostname {OPTIONS}"
   print "OPTIONS:"
+  print "  --replace"
   print "  --domain domain"
   print "  --a ip.v.4.address"
+  print "  --aaaa ip:v:6::address"
+  print "  --cname ip:v:6::address"
   print "  --mx '## full.name.of.host.'"
   print "  --description '...'"
   print "  --macAddress 00:11:22:33:44:55"
+  if error_text is not None:
+    print "Error: ", error_text
+  if exit_status is not None:
+    sys.exit(exit_status)
 
 def getNetworkFromIP4(state, ip):
 
@@ -94,6 +101,43 @@ def getNetworkFromIP4(state, ip):
   # if we did not find a network, return nothing
   return None
 
+def fill_out_v6(ip):
+   a=ip.split(':')
+   if a.count('') == 2:
+     a.remove('')
+   try:
+     empty_pos=a.index('')
+   except ValueError:
+     if len(a) == 8:
+       return a
+     raise
+   replace = ['0' for n in range(9-len(a))]
+   return a[0:empty_pos] + ['0' for n in range(9-len(a))] + a[empty_pos+1:]
+
+def ipv6_in_net(ip, net, mask):
+  matching_segments = len(range(0,mask,16))
+  partial_bits = mask%16
+  if partial_bits > 0:
+    raise 'Need to code for a non-byte terminated IPv6 network mask: %s/%d' % (":".join(net), mask)
+  return ip[0:matching_segments] == net[0:matching_segments]
+
+def getNetworkFromIP6(state, ip):
+
+  srcPieces = fill_out_v6(ip)
+
+  for network in state.getNetworkList().getList():
+    for prefix in network.getRecordsOfType('prefix'):
+      ip_mask = prefix.recordData.split("/")
+      ip_mask[1] = int(ip_mask[1])
+      try:
+        ipPieces = fill_out_v6(ip_mask[0])
+        if ipv6_in_net(srcPieces, ipPieces, ip_mask[1]):
+          return network.name
+      except ValueError:
+        pass
+  # if we did not find a network, return nothing
+  return None
+
 def main(argv):
 
   # Set default domain for LPL
@@ -102,16 +146,15 @@ def main(argv):
     }
 
   try:
-    opts, args = getopt.getopt(argv, "", ['help', 'hostname=', 'domain=', 'a=', 'mx=', 'description=', 'macAddress='])
+    opts, args = getopt.getopt(argv, "", ['replace', 'help', 'hostname=', 'domain=', 'a=', 'aaaa=', 'cname=', 'mx=', 'description=', 'macAddress='])
+    replace_records = False
   except getopt.GetoptError:
-    usage()
-    sys.exit(2)
+    usage(2)
 
   p_opts = [e for e,trash in opts]
   if not '--hostname' in p_opts and not '--help' in p_opts:
     print "Need one primary option"
-    usage()
-    sys.exit(2)
+    usage(2)
 
   # Initialize state from XML Document
   state = stateInit()
@@ -119,8 +162,10 @@ def main(argv):
   # Parse in some arguments to keep track of record types we are dealing with
   for opt, arg in opts:
     opt = re.sub('^[-]+', '', opt)
-    if opt in ( 'hostname', 'domain', 'a', 'mx', 'description', 'macAddress' ):
+    if opt in ( 'hostname', 'domain', 'a', 'aaaa', 'cname', 'mx', 'description', 'macAddress' ):
       new_host_args[ opt ] = arg
+    if opt == 'replace':
+      replace_records = True
 
   # Then look for an existing host entry that matches the same name
   filter = lambda host, input: host.shortname == new_host_args[ 'hostname' ] and host.domainname == input
@@ -144,20 +189,26 @@ def main(argv):
   # DEBUG OUTPUT
   # state.getCurrentHost().printHost("| ")
 
-  # Remove old records that we are replacing
+  # Remove old records that we are replacing (or err on replace)
   for recordType in new_host_args.keys():
     filter = lambda rec: rec.recordType == recordType
     if recordType in dnsRecords:
       oldRecords = state.getCurrentHost().getDNSRecords( filter )
       for record in oldRecords:
+        if not replace_records:
+          usage(1, "Need to specify --replace to replace %s: %s" % (record.recordType, record.recordData))
         state.getCurrentHost().removeDNSRecord( record.recordType, record.recordData, record.recordNet )
         state.appendLog("Removed: %s [%s]: %s" % ( record.recordType, record.recordNet, record.recordData ))
     else:
-      oldRecords, oldRecords2 = state.getCurrentHost().getRecords( filter )
+      oldRecords, oldRecords2, oldRecords3 = state.getCurrentHost().getRecords( filter )
       for record in oldRecords:
+        if not replace_records:
+          usage(1, "Need to specify --replace to replace %s: %s" % (record.recordType, record.recordData))
         state.getCurrentHost().removeRecord( record.recordType, record.recordData )
         state.appendLog("Removed: %s: %s" % ( record.recordType, record.recordData ))
       for record in oldRecords2:
+        if not replace_records:
+          usage(1, "Need to specify --replace to replace %s: %s" % (record.recordType, record.recordData))
         state.getCurrentHost().removeRecord( record.recordType, record.recordData )
         state.appendLog("Removed: %s: %s" % ( record.recordType, record.recordData ))
 
@@ -168,6 +219,9 @@ def main(argv):
   for opt, arg in opts:
     ## Remove -- from beginning of opt
     opt = re.sub('^[-]+', '', opt)
+
+    if opt == 'replace':
+      continue
 
     # Make sure record is syntactically valid
     if not validator.validRecord( opt, arg ):
@@ -181,7 +235,20 @@ def main(argv):
       if opt == 'a':
         network = getNetworkFromIP4( state, arg )
         if not network:
-          print "Error: IP does not belong to any registered network"
+          print "Error: IP does not belong to any registered network: %s" % arg
+          sys.exit(-1)
+        nets = [ network ]
+      elif opt == 'aaaa':
+        network = getNetworkFromIP6( state, arg )
+        if not network:
+          print "Error: IP does not belong to any registered network: %s" % arg
+          sys.exit(-1)
+        nets = [ network ]
+      elif opt == 'cname':
+        # Magic value!
+        network = 'globalnet'
+        if not network:
+          print "Error: IP does not belong to any registered network: %s" % arg
           sys.exit(-1)
         nets = [ network ]
       else: # otherwise punt and add to all current networks

@@ -3,7 +3,31 @@
 # Run this script to update all DNS views.
 
 cd `dirname $0`
+source .pre-run
 (cd ./res/db/;./update_zones.py);echo
+
+require_svn
+echo pruning extraneous changes...
+# This means:
+#   look for all modified zones and headers (output zones as their header pair)
+#   sort all paths
+#   count all uniq paths
+#   output all unique header paths
+#   revert all unique headers
+# This reduces the number of spruious messages due to only a zone's serial
+# number incrementing. The DNS differences script comes to mind here.
+#
+# This will also decrease the number of zone transfers in an organization
+# that is using master/slave DNS servers.
+#
+# Finally, this also reduces the svn changeset size to reflect actual changes
+$svn status | \
+	 awk '	$1 ~ /^M$/ && /zones\/db-/ {sub("zones/db-","headers/db-")}
+		$1 ~ /^M$/ && /headers\/db-/ {print $2}' | \
+	 sort | \
+	 uniq -c | \
+	 awk '$1 ~ /^1$/ {print $2}' | \
+	 xargs $svn revert 2>&1 | grep -v Reverted
 
 echo if no errors were reported please run ./35-check-changes
 echo or you can simply run ./60-commit-changes

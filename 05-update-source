@@ -1,18 +1,10 @@
 #!/bin/bash
 
-svn=`which svn`
+source .pre-run
+source .pre-update
+require_svn
 
-if [ "x$svn" == "x" ]; then
-  echo Error: you need svn to be available in your path.
-  exit -1
-fi
-
-if [ ! -x "$svn" ]; then
-  echo Error: you need a working svn command available in your path.
-  exit -1
-fi
-
-svn update
+$svn update
 
 source .post-update
 

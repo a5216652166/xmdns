@@ -1,20 +1,11 @@
 #!/bin/bash
 
-svn=`which svn`
-
-if [ "x$svn" == "x" ]; then
-  echo Error: you need svn to be available in your path.
-  exit -1
-fi
-
-if [ ! -x "$svn" ]; then
-  echo Error: you need a working svn command available in your path.
-  exit -1
-fi
+source .pre-run
+require_svn
 
 if [ "x$EDITOR" == "x" ]; then
   echo EDITOR not defined, setting EDITOR to vim...
   export EDITOR=vim
 fi
 
-svn commit
+$svn commit
